@@ -1,0 +1,13 @@
+<?xml version="1.0"?>
+<!-- $Id$ -->
+<!-- Give all the module names here the configurations will be populated based on the order given -->
+<modules>
+
+	<Module moduleorder="10" modulename="Persistence" />
+	<Module moduleorder="80" modulename="Scheduler" />
+	<Module moduleorder="95" modulename="SAS_TEMP" />
+	<Module moduleorder="100" modulename="SAS" />
+	<Module moduleorder="120" modulename="MICKEYTRIAL_1" />
+    <Module moduleorder="130" modulename="MOVIEBOOKING" />
+    
+</modules>
