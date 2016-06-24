@@ -1,5 +1,6 @@
 package com.movieapp.beans;
 
+//test commit comment
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 
