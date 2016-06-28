@@ -389,7 +389,7 @@
 	</table>
 
 	
-		<table name="ShowSeat">
+		<table name="ShowSeat" dirty-write-check-columns="TICKET_ID">
 		<columns>
 			<column name="SHOW_SEAT_ID">
 				<data-type>BIGINT</data-type>
