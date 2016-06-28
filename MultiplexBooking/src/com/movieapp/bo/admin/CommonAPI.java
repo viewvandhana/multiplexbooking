@@ -122,7 +122,7 @@ public class CommonAPI implements CommonAPIInterface{
 	public String getTicketDetail(Long ticketId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		return JoinDAO.getTicketDetail(ticketId).get("finalResponse");
+		return JoinDAO.getTicketDetail(ticketId,true).get("finalResponse");
 	}
 
 	@Override

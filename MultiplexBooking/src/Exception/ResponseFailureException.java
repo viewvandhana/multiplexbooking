@@ -7,6 +7,11 @@ import com.movieapp.util.ObjectMapperUtil;
 
 public class ResponseFailureException extends Exception{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+
 	public ResponseFailureException(String message)
 	{
 		super(message);
@@ -20,3 +25,4 @@ public class ResponseFailureException extends Exception{
 		return ObjectMapperUtil.getCustomMappedString("errors",errorList);
 	}
 }
+	

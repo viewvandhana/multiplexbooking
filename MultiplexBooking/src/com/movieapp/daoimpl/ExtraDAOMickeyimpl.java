@@ -13,10 +13,12 @@ import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
 import com.adventnet.moviebooking.EXTRA;
+import com.adventnet.moviebooking.SHOWDETAIL;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.Row;
 import com.movieapp.beans.Customer;
 import com.movieapp.beans.Extra;
+import com.movieapp.beans.Show;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
 
@@ -75,5 +77,14 @@ public class ExtraDAOMickeyimpl extends MickeyBaseDAO<Extra>{
 		return EXTRA.EXTRA_ID;
 	}
 	
-	
+	public int checkIfExtraExist(String extraName) throws ResponseFailureException
+	{
+		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
+		Criteria criteria=new Criteria(new Column(getTableName(),EXTRA.EXTRA_NAME),extraName,QueryConstants.EQUAL);
+		selectQuery.addSelectColumn(new Column(null,"*"));
+		selectQuery.setCriteria(criteria);
+	    ArrayList<Extra> extraList=getRows(selectQuery);
+	   	return extraList.size();
+	   
+	}	
 }

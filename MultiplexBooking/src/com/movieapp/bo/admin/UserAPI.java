@@ -1,5 +1,6 @@
 package com.movieapp.bo.admin;
 
+import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -20,9 +21,7 @@ import com.movieapp.beans.Ticket;
 import com.movieapp.beans.TicketCharge;
 import com.movieapp.daoimpl.CustomerDAOMickeyImpl;
 import com.movieapp.daoimpl.JoinDAO;
-import com.movieapp.daoimpl.MovieShowDAOMickeyImpl;
 import com.movieapp.daoimpl.ShowSeatDAOMickeyImpl;
-import com.movieapp.daoimpl.TicketDAOMickeyImpl;
 import com.twilio.sdk.TwilioRestClient;
 import com.twilio.sdk.TwilioRestException;
 import com.twilio.sdk.resource.factory.MessageFactory;
@@ -129,6 +128,7 @@ public class UserAPI implements UserAPIInterface{
 			for(int i=0;i<showSeatsArray.length();i++)
 			{
 				((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).updateShowSeatByMovieShowId(ticketInserted.getMovieShowID(),ticketInserted.getId(),showSeatsArray.optLong(i));
+				
 			}
 			JSONArray ticketChargesArray=ticketDetailObj.optJSONArray("ticketcharges");
 			ArrayList<TicketCharge> ticketChargesList=new ArrayList<TicketCharge>();
@@ -138,16 +138,19 @@ public class UserAPI implements UserAPIInterface{
 			ticketChargesList.add(new TicketCharge(null, ticketInserted.getId(),chargeObj.optLong("extraID") , chargeObj.optInt("quantity")));
 			}
 			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
-			HashMap<String, String> ticketDetail=JoinDAO.getTicketDetail(ticketInserted.getId());
+			HashMap<String, String> ticketDetail=JoinDAO.getTicketDetail(ticketInserted.getId(),ticketChargesList.size()==0?false:true);
 			DataAccess.getTransactionManager().commit();
 			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketDetail.get("seatNames"));
 			return ticketDetail.get("finalResponse");
 		}
 		catch(DataAccessException e)
 		{
+			System.out.println("exception------>"+e.toString());
+			System.out.println("exceptioncode------>"+e.getErrorCode());
+			
 			try {
 				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
+				} catch (IllegalStateException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
 			} catch (SecurityException e1) {
@@ -156,6 +159,11 @@ public class UserAPI implements UserAPIInterface{
 			} catch (SystemException e1) {
 				// TODO Auto-generated catch block
 				e1.printStackTrace();
+			}
+			
+			if(e.getMessage().contains("dirty-write protected"))
+			{
+					throw new ResponseFailureException("Ticket(s) booked for selected seat(s)");
 			}
 			throw new ResponseFailureException(e.getMessage());
 		}

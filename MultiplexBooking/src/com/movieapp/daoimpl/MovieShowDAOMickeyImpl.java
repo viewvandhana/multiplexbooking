@@ -2,36 +2,26 @@ package com.movieapp.daoimpl;
 
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.Iterator;
 
 import Exception.ResponseFailureException;
 
 import com.adventnet.ds.query.Column;
 import com.adventnet.ds.query.Criteria;
-import com.adventnet.ds.query.Join;
 import com.adventnet.ds.query.QueryConstants;
 import com.adventnet.ds.query.SelectQuery;
 import com.adventnet.ds.query.SelectQueryImpl;
 import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
+import com.adventnet.moviebooking.MOVIE;
 import com.adventnet.moviebooking.MOVIESHOW;
-import com.adventnet.moviebooking.SCREEN;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.DataObject;
 import com.adventnet.persistence.Row;
-import com.movieapp.beans.Movie;
 import com.movieapp.beans.MovieShow;
-import com.movieapp.beans.Screen;
-import com.movieapp.beans.Show;
-import com.movieapp.daofactory.MovieDAOFactoy;
-import com.movieapp.daofactory.ScreenDAOFactory;
-import com.movieapp.daofactory.ShowDAOFactory;
-import com.movieapp.daofactory.ShowSeatDAOFactory;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
 import com.movieapp.util.AppUtil;
-import com.movieapp.util.ObjectMapperUtil;
 
 public class MovieShowDAOMickeyImpl extends MickeyBaseDAO<MovieShow> {
 
@@ -206,5 +196,21 @@ public class MovieShowDAOMickeyImpl extends MickeyBaseDAO<MovieShow> {
 
 		return JoinDAO.getMovieShowsOnJoinCriteria(JoinDAO.addMovieShowSelectColsAndJoins(moviesQuery));
 
+	}
+	
+	public int checkIfMovieShowExist(Long screenId,Long showId,String date) throws ResponseFailureException
+	{
+		
+		Date dateNew=AppUtil.Instance.getDateFromString(date);
+		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
+		Criteria criteria=new Criteria(new Column(getTableName(),MOVIESHOW.SCREEN_ID),screenId,QueryConstants.EQUAL);
+		criteria=criteria.and(new Criteria(new Column(getTableName(),MOVIESHOW.SHOW_ID),showId,QueryConstants.EQUAL));
+		criteria=criteria.and(new Criteria(new Column(getTableName(),MOVIESHOW.DATE),dateNew,QueryConstants.EQUAL));
+		selectQuery.addSelectColumn(new Column(null,"*"));
+		selectQuery.setCriteria(criteria);
+        ArrayList<MovieShow> movieShowList=getRows(selectQuery);
+	   	return movieShowList.size();
+		//return 0;
+	   
 	}
 }

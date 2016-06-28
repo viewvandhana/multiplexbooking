@@ -1,5 +1,7 @@
 package com.movieapp.daoimpl;
 
+import java.util.ArrayList;
+
 import Exception.ResponseFailureException;
 
 import com.adventnet.ds.query.Column;
@@ -12,10 +14,12 @@ import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
 import com.adventnet.moviebooking.SCREEN;
+import com.adventnet.moviebooking.SHOWDETAIL;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.DataObject;
 import com.adventnet.persistence.Row;
 import com.movieapp.beans.Screen;
+import com.movieapp.beans.Show;
 import com.movieapp.daofactory.CategoryDAOFactory;
 import com.movieapp.daofactory.ScreenDAOFactory;
 import com.movieapp.daofactory.SeatDAOFactory;
@@ -89,6 +93,18 @@ public class ScreenDAOMickeyImpl extends MickeyBaseDAO<Screen>{
 	    Criteria criteria=new Criteria(new Column(SCREEN.TABLE,SCREEN.SCREEN_ID),screenId,QueryConstants.EQUAL);
 		return JoinDAO.getScreensOnJoinCriteria(criteria);
 	}
+	
+	public int checkIfScreenExist(String screenName) throws ResponseFailureException
+	{
+		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
+		Criteria criteria=new Criteria(new Column(getTableName(),SCREEN.SCREEN_NAME),screenName,QueryConstants.EQUAL);
+		selectQuery.addSelectColumn(new Column(null,"*"));
+		selectQuery.setCriteria(criteria);
+	    ArrayList<Screen> screenList=getRows(selectQuery);
+	   	return screenList.size();
+	   
+	}
+	
 	
 }
 

@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -78,7 +79,7 @@ public class ExtraResource {
 	@Path("{extra_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateExtra(String extra,@PathParam("extra_id") Long extraId) {
+	public Response updateExtra(String extra,@PathParam("extra_id") Long extraId) {
 
 		try {
 			JSONObject j = new JSONObject(extra);
@@ -86,12 +87,16 @@ public class ExtraResource {
 			Extra extraObj = ObjectMapperUtil.getMapper().readValue(
 					extraJson.toString(), Extra.class);
 			extraObj.setId(extraId);
-			return ObjectMapperUtil.getCustomMappedString("extra",
+			String resp= ObjectMapperUtil.getCustomMappedString("extra",
 					new AdminAPI().updateExtra(extraObj));
+			return Response.ok(resp).build();
+			
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			String error= e.getErrorJson();
+			return Response.status(422).entity(error).build();
 		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
+			String error=new ResponseFailureException(e.getMessage()).getErrorJson();
+			return Response.status(422).entity(error).build();
 		}
 
 	}

@@ -1,16 +1,24 @@
 package com.movieapp.daoimpl;
 
+import java.util.ArrayList;
+import java.util.Date;
+
 import Exception.ResponseFailureException;
 
 import com.adventnet.ds.query.Column;
 import com.adventnet.ds.query.Criteria;
 import com.adventnet.ds.query.QueryConstants;
+import com.adventnet.ds.query.SelectQuery;
+import com.adventnet.ds.query.SelectQueryImpl;
+import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
 import com.adventnet.moviebooking.CATEGORY;
+import com.adventnet.moviebooking.MOVIESHOW;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.Row;
 import com.movieapp.beans.Category;
+import com.movieapp.beans.MovieShow;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
 
@@ -68,5 +76,16 @@ public class CategoryDAOMickeyImpl extends MickeyBaseDAO<Category> {
 	public String getPrimaryKeyColumnName() {
 		// TODO Auto-generated method stub
 		return CATEGORY.CATEGORY_ID;
+	}
+	
+	public int checkIfCategoryExist(String categoryName) throws ResponseFailureException
+	{
+		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
+		Criteria criteria=new Criteria(new Column(getTableName(),CATEGORY.CATEGORY_NAME),categoryName,QueryConstants.EQUAL);
+		selectQuery.addSelectColumn(new Column(null,"*"));
+		selectQuery.setCriteria(criteria);
+	    ArrayList<Category> categoryList=getRows(selectQuery);
+	   	return categoryList.size();
+	   
 	}
 }

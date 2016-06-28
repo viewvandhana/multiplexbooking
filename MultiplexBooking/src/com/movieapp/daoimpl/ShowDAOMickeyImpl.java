@@ -12,6 +12,7 @@ import com.adventnet.ds.query.SelectQueryImpl;
 import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
+import com.adventnet.moviebooking.CUSTOMER;
 import com.adventnet.moviebooking.SHOWDETAIL;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.Row;
@@ -78,5 +79,17 @@ public class ShowDAOMickeyImpl extends MickeyBaseDAO<Show> {
 		return SHOWDETAIL.SHOW_ID;
 	}
 	
+	
+	public int checkIfShowExist(String startTime,String endTime) throws ResponseFailureException
+	{
+		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
+		Criteria criteria=new Criteria(new Column(getTableName(),SHOWDETAIL.SHOW_START_TIME),startTime,QueryConstants.EQUAL);
+		criteria=criteria.and(new Criteria(new Column(getTableName(),SHOWDETAIL.SHOW_END_TIME),endTime,QueryConstants.EQUAL));
+		selectQuery.addSelectColumn(new Column(null,"*"));
+		selectQuery.setCriteria(criteria);
+	    ArrayList<Show> showList=getRows(selectQuery);
+	   	return showList.size();
+	   
+	}
 	
 }

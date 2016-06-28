@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -64,23 +65,26 @@ public class CustomerResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String validateCustomer(@QueryParam("action") String action,
+	public Response validateCustomer(@QueryParam("action") String action,
 			@QueryParam("email") String emailId) {
 
 		try {
 			if (action == null) {
-				return ObjectMapperUtil.getCustomMappedString("customers",
+				String resp= ObjectMapperUtil.getCustomMappedString("customers",
 						new AdminAPI().getCustomers());
+				return Response.ok(resp).build();
 
 			}
 			if (action.equals("checkCustomer")) {
-				return new UserAPI().checkCustomer(emailId);
+				String resp= new UserAPI().checkCustomer(emailId);
+				return Response.ok(resp).build();
 			} else {
-				return new ResponseFailureException("No such operation")
-						.getErrorJson();
+				String error=new ResponseFailureException("No such operation").getErrorJson();
+				return Response.status(422).entity(error).build();
 			}
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			String error= e.getErrorJson();
+			return Response.status(422).entity(error).build();
 		}
 
 	}

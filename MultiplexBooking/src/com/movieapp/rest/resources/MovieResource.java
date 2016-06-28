@@ -10,6 +10,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -26,19 +27,25 @@ public class MovieResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addMovie(String jObj) {
+	public Response addMovie(String jObj) {
 
 		try {
 			JSONObject j = new JSONObject(jObj);
 			JSONObject movieObj = j.optJSONObject("movie");
 			Movie movie = ObjectMapperUtil.getMapper().readValue(
 					movieObj.toString(), Movie.class);
-			return ObjectMapperUtil.getCustomMappedString("movie",
+			
+			String response= ObjectMapperUtil.getCustomMappedString("movie",
 					new AdminAPI().addMovie(movie));
+			return Response.ok(response).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			
+			String error= e.getErrorJson();
+			return Response.status(422).entity(error).build();
 		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
+			
+			String error=new ResponseFailureException(e.getMessage()).getErrorJson();
+			return Response.status(422).entity(error).build();
 		}
 
 	}

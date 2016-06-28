@@ -310,7 +310,7 @@ public class JoinDAO {
 
 	
 	
-	public static HashMap<String,String> getTicketDetail(Long ticketId) throws ResponseFailureException
+	public static HashMap<String,String> getTicketDetail(Long ticketId,boolean isExtraAvailable) throws ResponseFailureException
 	{
 	
 		try{
@@ -324,14 +324,12 @@ public class JoinDAO {
 			joinQuery.addSelectColumn(new Column(SHOWDETAIL.TABLE,"*"));
 		    joinQuery.addSelectColumn(new Column(SEAT.TABLE,"*"));
 		    joinQuery.addSelectColumn(new Column(CATEGORY.TABLE,"*"));
-		    joinQuery.addSelectColumn(new Column(TICKETCHARGE.TABLE,"*"));
 		    joinQuery.addSelectColumn(new Column(TICKET.TABLE,"*"));
 		    joinQuery.addSelectColumn(new Column(CUSTOMER.TABLE,"*"));
 		    joinQuery.addSelectColumn(new Column(SCREEN.TABLE,"*"));
 			joinQuery.addSelectColumn(new Column(MOVIE.TABLE, "*"));
 			joinQuery.addSelectColumn(new Column(MOVIESHOW.TABLE, "*"));
 			joinQuery.addSelectColumn(new Column(SHOWDETAIL.TABLE, "*"));
-			joinQuery.addSelectColumn(new Column(EXTRA.TABLE, "*"));
 			
 			    
 		    joinQuery.setCriteria(criteria);
@@ -339,17 +337,14 @@ public class JoinDAO {
 		    
 		    Join seatJoin = new Join(SHOWSEAT.TABLE, SEAT.TABLE, new String[]{SHOWSEAT.SEAT_ID}, new String[]{SEAT.SEAT_ID},Join.INNER_JOIN); 
 		    Join categoryJoin = new Join(SEAT.TABLE, CATEGORY.TABLE, new String[]{SEAT.CATEGORY_ID}, new String[]{CATEGORY.CATEGORY_ID},Join.INNER_JOIN); 
-		    Join chargeJoin = new Join(TICKET.TABLE, TICKETCHARGE.TABLE, new String[]{TICKET.TICKET_ID}, new String[]{TICKETCHARGE.TICKET_ID},Join.INNER_JOIN); 
 		    Join showSeatJoin = new Join(TICKET.TABLE, SHOWSEAT.TABLE, new String[]{TICKET.TICKET_ID}, new String[]{SHOWSEAT.TICKET_ID},Join.INNER_JOIN); 
 		    Join customerJoin = new Join(TICKET.TABLE, CUSTOMER.TABLE, new String[]{TICKET.CUSTOMER_ID}, new String[]{CUSTOMER.CUSTOMER_ID},Join.INNER_JOIN); 
 		    Join movieShowJoin = new Join(TICKET.TABLE, MOVIESHOW.TABLE, new String[]{TICKET.MOVIE_SHOW_ID}, new String[]{MOVIESHOW.MOVIE_SHOW_ID},Join.INNER_JOIN); 
 		    Join movieJoin = new Join(MOVIESHOW.TABLE, MOVIE.TABLE, new String[]{MOVIESHOW.MOVIE_ID}, new String[]{MOVIE.MOVIE_ID},Join.INNER_JOIN); 
 		    Join showJoin = new Join(MOVIESHOW.TABLE, SHOWDETAIL.TABLE, new String[]{MOVIESHOW.SHOW_ID}, new String[]{SHOWDETAIL.SHOW_ID},Join.INNER_JOIN); 
 		    Join screenJoin = new Join(MOVIESHOW.TABLE, SCREEN.TABLE, new String[]{MOVIESHOW.SCREEN_ID}, new String[]{SCREEN.SCREEN_ID},Join.INNER_JOIN); 
-		    Join extraJoin = new Join(TICKETCHARGE.TABLE, EXTRA.TABLE, new String[]{TICKETCHARGE.EXTRA_ID}, new String[]{EXTRA.EXTRA_ID},Join.INNER_JOIN); 
-			      
+		 	      
 		    
-		    joinQuery.addJoin(chargeJoin);
 		    joinQuery.addJoin(showSeatJoin);
 			joinQuery.addJoin(seatJoin);
 		    joinQuery.addJoin(categoryJoin);
@@ -358,7 +353,15 @@ public class JoinDAO {
 		    joinQuery.addJoin(screenJoin);
 		    joinQuery.addJoin(showJoin);
 		    joinQuery.addJoin(movieJoin);
-		    joinQuery.addJoin(extraJoin);
+		    if(isExtraAvailable)
+		    {
+		    	joinQuery.addSelectColumn(new Column(EXTRA.TABLE, "*"));
+		    	joinQuery.addSelectColumn(new Column(TICKETCHARGE.TABLE,"*"));
+		    	Join chargeJoin = new Join(TICKET.TABLE, TICKETCHARGE.TABLE, new String[]{TICKET.TICKET_ID}, new String[]{TICKETCHARGE.TICKET_ID},Join.INNER_JOIN); 
+		    	joinQuery.addJoin(chargeJoin);
+		  		Join extraJoin = new Join(TICKETCHARGE.TABLE, EXTRA.TABLE, new String[]{TICKETCHARGE.EXTRA_ID}, new String[]{EXTRA.EXTRA_ID},Join.INNER_JOIN); 
+		   	    joinQuery.addJoin(extraJoin);
+		    }
 			          
 			DataObject dataObject = TicketDAOFactory.getTicketDAOInstance("mickey").getDataObject(joinQuery);
 			
@@ -400,7 +403,10 @@ public class JoinDAO {
 		    ticketJson.put("customerID",ticket.getCustomerID());
 		    ticketJson.put("totalCost",ticket.getTotalCost());
 		    ticketJson.put("seats", seatIdArray);
+		    if(ticketChargeIdArray.length()>0)
+		    {
 		    ticketJson.put("ticketcharges", ticketChargeIdArray);
+		    }
 			    
 		   
 		    //String ticketStr=ObjectMapperUtil.getCustomMappedString("tickets",new JSONObject(response));

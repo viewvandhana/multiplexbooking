@@ -10,6 +10,7 @@ import com.adventnet.ds.query.SelectQuery;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.DataObject;
+import com.adventnet.persistence.Row;
 
 public interface BaseDAO<T> {
 
@@ -26,6 +27,7 @@ public interface BaseDAO<T> {
     public ArrayList<T> getRowsOnSelectionCols(SelectQuery selectQuery,String fields) throws ResponseFailureException;
     public DataObject getDataObject(SelectQuery selectQuery) throws ResponseFailureException; 
     public T getById(Long id,String fields) throws ResponseFailureException; 
-    
+    public T updateDataObjectRow(DataObject dObj,Row row) throws DataAccessException,ResponseFailureException; 
+     
 	
 }

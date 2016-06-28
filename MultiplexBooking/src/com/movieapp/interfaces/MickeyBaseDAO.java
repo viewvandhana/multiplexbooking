@@ -179,7 +179,11 @@ public abstract class MickeyBaseDAO<T>  implements BaseDAO<T> {
 	    Persistence persup = (Persistence) BeanUtil.lookup("Persistence"); 
         persup.update(updateQuery);
         DataObject updatedObj = persup.get(getTableName(), criteria);
-    	Row newRow=updatedObj.getFirstRow(getTableName());
+    	if(updatedObj.isEmpty())
+    	{
+    		return null;
+    	}
+        Row newRow=updatedObj.getFirstRow(getTableName());
 		return getAdapter().asBean(newRow);
 
 		}
@@ -196,8 +200,7 @@ public abstract class MickeyBaseDAO<T>  implements BaseDAO<T> {
 	
 	}
 	
-	
-	
+
 	
 	@Override
 	public ArrayList<T> getRowsOnSelectionCols(SelectQuery selectQuery,
@@ -251,14 +254,12 @@ public abstract class MickeyBaseDAO<T>  implements BaseDAO<T> {
 	
 	}
 	
-	   /* public T update(T row)
-	    {
-	    	
+	    @Override
+	    public T updateDataObjectRow(DataObject dObj, Row row) throws DataAccessException,ResponseFailureException
+	    		 {
+	    	// TODO Auto-generated method stub
+	    	dObj.updateRow(row);
+	  	    return getAdapter().asBean(DataAccess.update(dObj).getFirstRow(getTableName()));
+	  		
 	    }
-	    public void delete(long id);
-	    public T get(long id);
-	    public List<T> getRows(DocumentObject dobj);
-	    public static DataObject execute(SelectQuery q);*/
-	    
-	    
 }

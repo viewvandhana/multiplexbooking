@@ -35,6 +35,8 @@ public class AdminAPI implements AdminAPIInterface{
 	@Override
 	public Show addShow(Show show) throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(show.getStartTime(),show.getEndTime())==0)
+		{
 		try{
 		DataAccess.getTransactionManager().begin();
 			
@@ -62,7 +64,11 @@ public class AdminAPI implements AdminAPIInterface{
 		catch(Exception e)
 		{
 			throw new ResponseFailureException(e.getMessage());
+
+	    }
 		}
+		throw new ResponseFailureException("Show already exists");
+		
 	
 	}
 
@@ -107,15 +113,23 @@ public class AdminAPI implements AdminAPIInterface{
 	public Show updateShow(Show show) throws ResponseFailureException
 	{
 		
+	
 	if(!JoinDAO.isTicketBookedForShow(show.getId()))
 	{
+		
 	try{
 		DataAccess.getTransactionManager().begin();
 		
 		Show showUpdated=(Show)((ShowDAOMickeyImpl)ServiceInstance.getShowService()).updateShowById(show);
+		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(showUpdated.getStartTime(),showUpdated.getEndTime())<=1)
+		{
+	
 		DataAccess.getTransactionManager().commit();
 		
 		return showUpdated;
+		}
+		throw new DataAccessException("Show already exists");
+	
 	}
 	catch(DataAccessException e)
 	{
@@ -137,6 +151,7 @@ public class AdminAPI implements AdminAPIInterface{
 	{
 		throw new ResponseFailureException(e.getMessage());
 	}
+		
 	}
 	else
 	{
@@ -149,11 +164,13 @@ public class AdminAPI implements AdminAPIInterface{
 	@Override
 	public String addScreen(String screenObj) throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		
+		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
+			
+		if(((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).checkIfScreenExist(screen.getScreenName())==0)
+		{	
 		try{
 		DataAccess.getTransactionManager().begin();
 		
-		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
 		Screen screenInserted=(Screen)ServiceInstance.getScreenService().insert(screen);
 		
 		ArrayList<Seat> seatList=JSONParser.INSTANCE.getSeatsArray(screenObj);
@@ -189,6 +206,9 @@ public class AdminAPI implements AdminAPIInterface{
 		{
 			throw new ResponseFailureException(e.getMessage());
 		}
+		}
+		throw new ResponseFailureException("Screen already exists");
+		
 	}
 
 	@Override
@@ -232,10 +252,11 @@ public class AdminAPI implements AdminAPIInterface{
 	public String updateScreen(String screenObj,Long screenId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
+		
 		try{
 			DataAccess.getTransactionManager().begin();
 			
-		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
 		screen.setId(screenId);
 		
 		//update screen
@@ -312,6 +333,7 @@ public class AdminAPI implements AdminAPIInterface{
 		{
 			throw new ResponseFailureException(e.getMessage());
 		}
+	
 
 	}
 
@@ -336,7 +358,10 @@ public class AdminAPI implements AdminAPIInterface{
 		ArrayList<ShowSeat> showSeatList=new ArrayList<ShowSeat>();
 			if(!((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).isTicketBookedForAnySeat(seatList))
 			{
-				 ((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).updateScreenById(screen);
+				 Screen screenUpdated=((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).updateScreenById(screen);
+				 if(((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).checkIfScreenExist(screenUpdated.getScreenName())<=1)
+					{	
+					
 					
 				for(int i=0;i<seatList.size();i++)
 				{
@@ -397,17 +422,22 @@ public class AdminAPI implements AdminAPIInterface{
 				addShowSeat(showSeatList);	
 				
 				DataAccess.getTransactionManager().commit();
+				return new CommonAPI().getScreenForId(screen.getId());
+				
+					}
+				 
+					throw new DataAccessException("Screen already exists");
 					
 			}
 			else
 			{
-				throw new ResponseFailureException("Cannot update screen seats..Ticket already booked in the selected seat(s)");
+				throw new DataAccessException("Cannot update screen seats..Ticket already booked in the selected seat(s)");
+			//	throw new ResponseFailureException("Cannot update screen seats..Ticket already booked in the selected seat(s)");
 				//throw message saying ticket booked.so seat cant be changed
 			}
 			
 			
 			
-		return new CommonAPI().getScreenForId(screen.getId());
 		}
 		else
 		{
@@ -608,7 +638,9 @@ public class AdminAPI implements AdminAPIInterface{
 		
 		for(int i=0;i<movieShowList.size();i++)
 		{
-				
+			MovieShow movieShow=movieShowList.get(i);
+		if(((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).checkIfMovieShowExist(movieShow.getScreenID(),movieShow.getShowID(),movieShow.getMovieDate())==0)
+	    {
 		MovieShow movieShowInserted=(MovieShow)ServiceInstance.getMovieShowService().insert(movieShowList.get(i));
 		
 		msIds.add(movieShowInserted.getId());
@@ -622,8 +654,14 @@ public class AdminAPI implements AdminAPIInterface{
 				showSeatList.add(new ShowSeat(null,null, seat.getId(),movieShowInserted.getId(),true));
 			}
 		}
+	    
 		
 		addShowSeat(showSeatList);
+		}
+		else
+		{
+		throw new DataAccessException("MovieShow already exists");
+		}
 		}
 		DataAccess.getTransactionManager().commit();
 		
@@ -649,6 +687,7 @@ public class AdminAPI implements AdminAPIInterface{
 			throw new ResponseFailureException(e.getMessage());
 		
 		}
+		
 		
 		
 		
@@ -704,6 +743,8 @@ public class AdminAPI implements AdminAPIInterface{
 				DataAccess.getTransactionManager().begin();
 				
 		MovieShow movieShowUpdated=(MovieShow)((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).updateMovieShowById(movieShow);
+		if(((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).checkIfMovieShowExist(movieShowUpdated.getScreenID(),movieShowUpdated.getShowID(),movieShowUpdated.getMovieDate())<=1)
+		{  
 		if(!screenId.equals(movieShow.getScreenID())){
 				
 		((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).deleteShowSeatsByMovieShowsId(movieShow.getId());
@@ -724,6 +765,8 @@ public class AdminAPI implements AdminAPIInterface{
 		DataAccess.getTransactionManager().commit();
 		
 		return ((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).getMovieShowById(movieShowUpdated.getId());
+		}
+		throw new DataAccessException("MovieShow already exist");
 			}
 			catch(DataAccessException e)
 			{
@@ -905,6 +948,9 @@ public class AdminAPI implements AdminAPIInterface{
 	public Category addCategory(Category category)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(category.getCategoryName())==0)
+		{
+		
 		try{
 			DataAccess.getTransactionManager().begin();
 		Category categoryInserted=((Category)ServiceInstance.getCategoryService().insert(category));
@@ -931,6 +977,8 @@ public class AdminAPI implements AdminAPIInterface{
 		{
 			throw new ResponseFailureException(e.getMessage());
 		}
+		}
+		throw new ResponseFailureException("Category already exists");
 		
 	
 	}
@@ -971,13 +1019,19 @@ public class AdminAPI implements AdminAPIInterface{
 	public Category updateCategory(Category category)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+	
 		try{
 			DataAccess.getTransactionManager().begin();
 			
 		Category categoryUpdated=(Category)((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).updateCategoryById(category);
+		if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(categoryUpdated.getCategoryName())<=1)
+		{
+	
 		DataAccess.getTransactionManager().commit();
 		
 		return categoryUpdated; 
+		}
+		throw new DataAccessException("Category already exists");
 		}
 		catch(DataAccessException e)
 		{
@@ -1000,7 +1054,7 @@ public class AdminAPI implements AdminAPIInterface{
 			throw new ResponseFailureException(e.getMessage());
 		}
 
-		
+	
 		
 
 	}
@@ -1009,6 +1063,9 @@ public class AdminAPI implements AdminAPIInterface{
 	public Extra addExtra(Extra extra)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extra.getName())==0)
+		{
+		
 		try{
 			DataAccess.getTransactionManager().begin();
 		Extra extraInserted=((Extra)ServiceInstance.getExtraService().insert(extra));
@@ -1036,6 +1093,9 @@ public class AdminAPI implements AdminAPIInterface{
 			throw new ResponseFailureException(e.getMessage());
 		}
 		
+		}
+		throw new ResponseFailureException("Extra already exists");
+	
 
 	}
 
@@ -1076,13 +1136,19 @@ public class AdminAPI implements AdminAPIInterface{
 	public Extra updateExtra(Extra extra)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		
 		try{
 			DataAccess.getTransactionManager().begin();
 			
 		Extra extraUpdated=(Extra)((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).updateExtraById(extra);
+		if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extraUpdated.getName())<=1)
+		{
+		
 		DataAccess.getTransactionManager().commit();
 		
 		return extraUpdated;
+		}
+		throw new DataAccessException("Extra already exists");
 		}
 		catch(DataAccessException e)
 		{
@@ -1105,7 +1171,7 @@ public class AdminAPI implements AdminAPIInterface{
 			throw new ResponseFailureException(e.getMessage());
 		}
 
-		
+	
 		
 
 	
@@ -1123,6 +1189,12 @@ public class AdminAPI implements AdminAPIInterface{
 	{
 			
 		Screen screenInserted=(Screen)((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).updateScreenById(screen);
+		if(((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).checkIfScreenExist(screenInserted.getScreenName())>1)
+		{
+		throw new DataAccessException("Screen already exists");
+		}
+		
+		
 		((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).deleteSeatByScreenId(screenInserted.getId());
 		((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).deleteShowSeatsByMovieShowsId(msId);
 		
