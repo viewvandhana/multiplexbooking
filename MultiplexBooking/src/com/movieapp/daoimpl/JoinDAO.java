@@ -182,8 +182,8 @@ public class JoinDAO {
 		    selectQuery.addSelectColumn(new Column(SEAT.TABLE,"*"));
 		    selectQuery.addSelectColumn(new Column(SCREEN.TABLE,"*"));
 			selectQuery.setCriteria(criteria);
-			Join screenJoin = new Join(SCREEN.TABLE, SEAT.TABLE, new String[]{SCREEN.SCREEN_ID}, new String[]{SEAT.SCREEN_ID},Join.INNER_JOIN); 
-		    Join categoryJoin = new Join(SEAT.TABLE, CATEGORY.TABLE, new String[]{SEAT.CATEGORY_ID}, new String[]{CATEGORY.CATEGORY_ID},Join.INNER_JOIN); 
+			Join screenJoin = new Join(SCREEN.TABLE, SEAT.TABLE, new String[]{SCREEN.SCREEN_ID}, new String[]{SEAT.SCREEN_ID},Join.LEFT_JOIN); 
+		    Join categoryJoin = new Join(SEAT.TABLE, CATEGORY.TABLE, new String[]{SEAT.CATEGORY_ID}, new String[]{CATEGORY.CATEGORY_ID},Join.LEFT_JOIN); 
 		   
 		    selectQuery.addJoin(screenJoin);
 		    selectQuery.addJoin(categoryJoin);
@@ -206,7 +206,7 @@ public class JoinDAO {
 		    }
 
 		    
-		    String seatStr=ObjectMapperUtil.getCustomMappedString("seats",SeatDAOFactory.getSeatDAOInstance("mickey").getBeans(dataObject.getRows(SEAT.TABLE)));
+		    String seatStr=ObjectMapperUtil.getCustomMappedString("seats",seatList);
 		    String actualSeats=seatStr.subSequence(1,seatStr.length()-1).toString();
 			
 		    String categoryStr=ObjectMapperUtil.getCustomMappedString("categories",CategoryDAOFactory.getCategoryDAOInstance("mickey").getBeans(dataObject.getRows(CATEGORY.TABLE)));
@@ -243,6 +243,59 @@ public class JoinDAO {
 
 	
 
+	public static String getSeatsForScreenOnJoinCriteria(Criteria criteria) throws ResponseFailureException
+	{
+		try{
+			SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(SEAT.TABLE)); 
+		    selectQuery.addSelectColumn(new Column(CATEGORY.TABLE,"*"));
+		    selectQuery.addSelectColumn(new Column(SEAT.TABLE,"*"));
+		    selectQuery.addSelectColumn(new Column(SCREEN.TABLE,"*"));
+			selectQuery.setCriteria(criteria);
+			Join screenJoin = new Join(SEAT.TABLE, SCREEN.TABLE, new String[]{SEAT.SCREEN_ID}, new String[]{SCREEN.SCREEN_ID},Join.LEFT_JOIN); 
+		    Join categoryJoin = new Join(SEAT.TABLE, CATEGORY.TABLE, new String[]{SEAT.CATEGORY_ID}, new String[]{CATEGORY.CATEGORY_ID},Join.LEFT_JOIN); 
+		   
+		    selectQuery.addJoin(screenJoin);
+		    selectQuery.addJoin(categoryJoin);
+		    
+		    DataObject dataObject=SeatDAOFactory.getSeatDAOInstance("mickey").getDataObject(selectQuery); 
+		   
+		//    String screenStr=ObjectMapperUtil.getCustomMappedString("screens",ScreenDAOFactory.getScreenDAOInstance("mickey").getBeans(dataObject.getRows(SCREEN.TABLE)));
+		  //  String actualScreens=screenStr.subSequence(1,screenStr.length()-1).toString();
+		    
+		   
+			      
+		    ArrayList<Seat> seatList=SeatDAOFactory.getSeatDAOInstance("mickey").getBeans(dataObject.getRows(SEAT.TABLE));
+		    Screen screen=(Screen)ScreenDAOFactory.getScreenDAOInstance("mickey").getBeans(dataObject.getRows(SCREEN.TABLE)).get(0);
+			ArrayList<Screen> screenList=new ArrayList<Screen>();
+			screenList.add(screen);
+		   
+		    
+		    String seatStr=ObjectMapperUtil.getCustomMappedString("seats",seatList);
+		    String actualSeats=seatStr.subSequence(1,seatStr.length()-1).toString();
+			
+		    String categoryStr=ObjectMapperUtil.getCustomMappedString("categories",CategoryDAOFactory.getCategoryDAOInstance("mickey").getBeans(dataObject.getRows(CATEGORY.TABLE)));
+		    String actualCategory=categoryStr.subSequence(1,categoryStr.length()-1).toString();
+		    
+		    String screenStr=ObjectMapperUtil.getCustomMappedString("screens",screenList);
+		    String actualScreen=screenStr.subSequence(1,screenStr.length()-1).toString();
+		   
+		    
+		    String finalResponse="{"+actualSeats+","+actualCategory+","+actualScreen+"}";
+		    return finalResponse;
+		}
+		catch(Exception e)
+		{
+			throw new ResponseFailureException(e.getMessage());
+		}
+			
+		
+
+	}
+
+	
+
+
+	
 	
 	public static String getShowSeatsOnJoinCriteria(Criteria criteria) throws ResponseFailureException
 	{
@@ -348,29 +401,35 @@ public class JoinDAO {
 		    joinQuery.addJoin(showSeatJoin);
 			joinQuery.addJoin(seatJoin);
 		    joinQuery.addJoin(categoryJoin);
+		    
 		    joinQuery.addJoin(customerJoin);
+		    
 		    joinQuery.addJoin(movieShowJoin);
 		    joinQuery.addJoin(screenJoin);
 		    joinQuery.addJoin(showJoin);
 		    joinQuery.addJoin(movieJoin);
-		    if(isExtraAvailable)
-		    {
-		    	joinQuery.addSelectColumn(new Column(EXTRA.TABLE, "*"));
-		    	joinQuery.addSelectColumn(new Column(TICKETCHARGE.TABLE,"*"));
-		    	Join chargeJoin = new Join(TICKET.TABLE, TICKETCHARGE.TABLE, new String[]{TICKET.TICKET_ID}, new String[]{TICKETCHARGE.TICKET_ID},Join.INNER_JOIN); 
-		    	joinQuery.addJoin(chargeJoin);
-		  		Join extraJoin = new Join(TICKETCHARGE.TABLE, EXTRA.TABLE, new String[]{TICKETCHARGE.EXTRA_ID}, new String[]{EXTRA.EXTRA_ID},Join.INNER_JOIN); 
-		   	    joinQuery.addJoin(extraJoin);
-		    }
 			          
 			DataObject dataObject = TicketDAOFactory.getTicketDAOInstance("mickey").getDataObject(joinQuery);
+			
+			SelectQuery chargesJoinQuery = new SelectQueryImpl(Table.getTable( TICKET.TABLE)); 
+			chargesJoinQuery.setCriteria(criteria);
+		    chargesJoinQuery.addSelectColumn(new Column(TICKET.TABLE,"*"));
+			chargesJoinQuery.addSelectColumn(new Column(EXTRA.TABLE, "*"));
+	    	chargesJoinQuery.addSelectColumn(new Column(TICKETCHARGE.TABLE,"*"));
+	    	Join chargeJoin = new Join(TICKET.TABLE, TICKETCHARGE.TABLE, new String[]{TICKET.TICKET_ID}, new String[]{TICKETCHARGE.TICKET_ID},Join.LEFT_JOIN); 
+	    	Join extraJoin = new Join(TICKETCHARGE.TABLE, EXTRA.TABLE, new String[]{TICKETCHARGE.EXTRA_ID}, new String[]{EXTRA.EXTRA_ID},Join.LEFT_JOIN); 
+	   	    chargesJoinQuery.addJoin(chargeJoin);
+	  		chargesJoinQuery.addJoin(extraJoin);
+	  		DataObject chargesDataObject = TicketDAOFactory.getTicketDAOInstance("mickey").getDataObject(chargesJoinQuery);
+			
 			
 	
 		    String categoryStr=ObjectMapperUtil.getCustomMappedString("categories",CategoryDAOFactory.getCategoryDAOInstance("mickey").getBeans(dataObject.getRows(CATEGORY.TABLE)));
 		    String actualCategories=categoryStr.subSequence(1,categoryStr.length()-1).toString();
 		
 		    ArrayList<Seat> seatList=SeatDAOFactory.getSeatDAOInstance("mickey").getBeans(dataObject.getRows(SEAT.TABLE));
-		    ArrayList<TicketCharge> ticketChargeList=TicketChargeDAOFactory.getTicketChargeDAOInstance("mickey").getBeans(dataObject.getRows(TICKETCHARGE.TABLE));
+		   
+		    ArrayList<TicketCharge> ticketChargeList=TicketChargeDAOFactory.getTicketChargeDAOInstance("mickey").getBeans(chargesDataObject.getRows(TICKETCHARGE.TABLE));
 		    
 		    String seatStr=ObjectMapperUtil.getCustomMappedString("seats",seatList);
 		    String actualSeats=seatStr.subSequence(1,seatStr.length()-1).toString();
@@ -427,10 +486,9 @@ public class JoinDAO {
 		    String movieStr=ObjectMapperUtil.getCustomMappedString("movies",MovieDAOFactoy.getMovieDAOInstance("mickey").getBeans(dataObject.getRows(MOVIE.TABLE)));
 		    String actualMovies=movieStr.subSequence(1,movieStr.length()-1).toString();
 			
-		    String extraStr=ObjectMapperUtil.getCustomMappedString("extras",ExtraDAOFactory.getExtraDAOInstance("mickey").getBeans(dataObject.getRows(EXTRA.TABLE)));
+		    String extraStr=ObjectMapperUtil.getCustomMappedString("extras",ExtraDAOFactory.getExtraDAOInstance("mickey").getBeans(chargesDataObject.getRows(EXTRA.TABLE)));
 		    String actualExtras=extraStr.subSequence(1,extraStr.length()-1).toString();
 			
-		    
 		    String customerStr=ObjectMapperUtil.getCustomMappedString("customers",CustomerDAOFactory.getCustomerDAOInstance("mickey").getBeans(dataObject.getRows(CUSTOMER.TABLE)));
 		    String actualCustomer=customerStr.subSequence(1,customerStr.length()-1).toString();
 			

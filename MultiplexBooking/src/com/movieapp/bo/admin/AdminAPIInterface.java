@@ -48,10 +48,12 @@ public interface AdminAPIInterface {
 	public void deleteSeat(long id) throws ResponseFailureException;
 	public ArrayList<Seat> getSeats() throws ResponseFailureException;
 	public Seat updateSeat(Seat seat) throws ResponseFailureException;
+	public String getSeatsForScreen(Long screenId) throws ResponseFailureException;
 	
 	//customer
 	public ArrayList<Customer> getCustomers() throws ResponseFailureException;
 	public void deleteCustomer(long id) throws ResponseFailureException;
+	public ArrayList<Customer> getCustomers( String fields) throws ResponseFailureException;
 	
 	//category
 	public Category addCategory(Category category) throws ResponseFailureException;

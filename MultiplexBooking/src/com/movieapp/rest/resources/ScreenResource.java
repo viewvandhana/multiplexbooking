@@ -68,7 +68,7 @@ public class ScreenResource {
 	@GET
 	@Path("{screen_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllScreens(@PathParam("screen_id") Long screenId) {
+	public String getScreenById(@PathParam("screen_id") Long screenId) {
 
 		try {
 			

@@ -942,5 +942,18 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	
-
+	@Override
+	public ArrayList<Customer> getCustomers( String fields)
+			throws ResponseFailureException {
+		// TODO Auto-generated method stub
+		return ServiceInstance.getCustomerService().getRowsOnSelectionCols(null, fields);
+	}
+	
+	@Override
+	public String getSeatsForScreen(Long screenId)
+			throws ResponseFailureException {
+		// TODO Auto-generated method stub
+		return ((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).getSeatsForScreen(screenId);
+		
+	}
 }

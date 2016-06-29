@@ -13,13 +13,13 @@ public class Seat {
 	private int rowNumber;
 	private int columnNumber;
 	private boolean status;
-	private boolean isDeleted;
+	private Boolean isDeleted;
 	
-	public boolean getIsDeleted() {
+	public Boolean getIsDeleted() {
 		return isDeleted;
 	}
 
-	public void setIsDeleted(boolean isDeleted) {
+	public void setIsDeleted(Boolean isDeleted) {
 		this.isDeleted = isDeleted;
 	}
 

@@ -97,4 +97,17 @@ public class ShowResource {
 		}
 
 	}
+	@GET
+	@Path("{show_id}")
+	@Produces(MediaType.APPLICATION_JSON)
+	public String getShowById(@PathParam("show_id") Long id,@QueryParam("fields") String fields) {
+		
+		try {
+			return ObjectMapperUtil.getCustomMappedString("show",
+					new CommonAPI().getShowsById(id, fields));
+		} catch (ResponseFailureException e) {
+			return e.getErrorJson();
+		}
+	
+	}
 }

@@ -27,14 +27,14 @@ public class MovieResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response addMovie(String jObj) {
+	public Response addMovie(Movie movie) {
 
 		try {
-			JSONObject j = new JSONObject(jObj);
-			JSONObject movieObj = j.optJSONObject("movie");
-			Movie movie = ObjectMapperUtil.getMapper().readValue(
-					movieObj.toString(), Movie.class);
-			
+//			JSONObject j = new JSONObject(jObj);
+//			JSONObject movieObj = j.optJSONObject("movie");
+//			Movie movie = ObjectMapperUtil.getMapper().readValue(
+//					movieObj.toString(), Movie.class);
+//			
 			String response= ObjectMapperUtil.getCustomMappedString("movie",
 					new AdminAPI().addMovie(movie));
 			return Response.ok(response).build();

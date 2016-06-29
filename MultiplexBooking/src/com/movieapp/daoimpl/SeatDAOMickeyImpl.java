@@ -120,6 +120,13 @@ public class SeatDAOMickeyImpl extends MickeyBaseDAO<Seat>{
 	
 		
 	}
+	
+	public String getSeatsForScreen(Long screenId) throws ResponseFailureException
+	{
+		Criteria criteria=new Criteria(new Column(getTableName(),SEAT.SCREEN_ID),screenId,QueryConstants.EQUAL);
+	    return JoinDAO.getSeatsForScreenOnJoinCriteria(criteria);
+	
+	}
 }
 
 	
