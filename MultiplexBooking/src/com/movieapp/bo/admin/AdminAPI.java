@@ -81,7 +81,7 @@ public class AdminAPI implements AdminAPIInterface{
 		
 	try{
 		
-		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(show.getId(),show.getStartTime(),show.getEndTime())>0)
+		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(show.getId(),show.getStartTime(),show.getEndTime())==0)
 		{
 			Show showUpdated=(Show)((ShowDAOMickeyImpl)ServiceInstance.getShowService()).updateShowById(show);
 			return showUpdated;
@@ -799,7 +799,7 @@ public class AdminAPI implements AdminAPIInterface{
 		// TODO Auto-generated method stub
 	
 		try{
-			if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(category.getId(),category.getCategoryName())>0)
+			if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(category.getId(),category.getCategoryName())==0)
 			{
 			
 			Category categoryUpdated=(Category)((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).updateCategoryById(category);
@@ -861,7 +861,7 @@ public class AdminAPI implements AdminAPIInterface{
 		
 		try{
 			
-			if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extra.getId(),extra.getName())>0)
+			if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extra.getId(),extra.getName())==0)
 			{
 			Extra extraUpdated=(Extra)((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).updateExtraById(extra);
 		    return extraUpdated;
