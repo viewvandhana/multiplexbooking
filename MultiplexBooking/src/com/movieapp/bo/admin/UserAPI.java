@@ -36,26 +36,8 @@ public class UserAPI implements UserAPIInterface{
 		if(((CustomerDAOMickeyImpl)ServiceInstance.getCustomerService()).getCustomer(customer.getEmail())==null)
 		{
 			try{
-				DataAccess.getTransactionManager().begin();
 			Customer customerInserted=((Customer)ServiceInstance.getCustomerService().insert(customer));
-			DataAccess.getTransactionManager().commit();
 			return customerInserted;
-			}
-			catch(DataAccessException e)
-			{
-				try {
-					DataAccess.getTransactionManager().rollback();
-				} catch (IllegalStateException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (SecurityException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (SystemException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				}
-				throw new ResponseFailureException(e.getMessage());
 			}
 			catch(Exception e)
 			{
@@ -71,26 +53,8 @@ public class UserAPI implements UserAPIInterface{
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();	
 		Customer customerUpdated= (Customer)((CustomerDAOMickeyImpl)ServiceInstance.getCustomerService()).updateCustomerById(customer);
-		DataAccess.getTransactionManager().commit();
 		 return customerUpdated;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -145,8 +109,6 @@ public class UserAPI implements UserAPIInterface{
 		}
 		catch(DataAccessException e)
 		{
-			System.out.println("exception------>"+e.toString());
-			System.out.println("exceptioncode------>"+e.getErrorCode());
 			
 			try {
 				DataAccess.getTransactionManager().rollback();

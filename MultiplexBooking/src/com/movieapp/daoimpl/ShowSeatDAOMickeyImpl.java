@@ -83,13 +83,6 @@ public class ShowSeatDAOMickeyImpl  extends MickeyBaseDAO<ShowSeat>{
 		criteria=criteria.and(new Criteria(Column.getColumn(getTableName(),SHOWSEAT.TICKET_ID), null,QueryConstants.EQUAL));
 		sq.setCriteria(criteria);
 	    DataObject dataobject = getDataObject(sq);
-	    try {
-			Thread.sleep(10000);
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
-	    
 	    Row row =  dataobject.getRow(getTableName());
   	    row.set("TICKET_ID", ticketId);
   	    updateDataObjectRow(dataobject, row);

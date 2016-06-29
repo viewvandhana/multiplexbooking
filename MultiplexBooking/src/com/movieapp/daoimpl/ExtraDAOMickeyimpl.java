@@ -77,10 +77,15 @@ public class ExtraDAOMickeyimpl extends MickeyBaseDAO<Extra>{
 		return EXTRA.EXTRA_ID;
 	}
 	
-	public int checkIfExtraExist(String extraName) throws ResponseFailureException
+	public int checkIfExtraExist(Long extraId,String extraName) throws ResponseFailureException
 	{
 		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
 		Criteria criteria=new Criteria(new Column(getTableName(),EXTRA.EXTRA_NAME),extraName,QueryConstants.EQUAL);
+		if(extraId!=null)
+		{
+			criteria=new Criteria(new Column(getTableName(),EXTRA.EXTRA_ID),extraId,QueryConstants.NOT_EQUAL);
+			
+		}
 		selectQuery.addSelectColumn(new Column(null,"*"));
 		selectQuery.setCriteria(criteria);
 	    ArrayList<Extra> extraList=getRows(selectQuery);

@@ -78,10 +78,14 @@ public class CategoryDAOMickeyImpl extends MickeyBaseDAO<Category> {
 		return CATEGORY.CATEGORY_ID;
 	}
 	
-	public int checkIfCategoryExist(String categoryName) throws ResponseFailureException
+	public int checkIfCategoryExist(Long catId,String categoryName) throws ResponseFailureException
 	{
 		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
 		Criteria criteria=new Criteria(new Column(getTableName(),CATEGORY.CATEGORY_NAME),categoryName,QueryConstants.EQUAL);
+		if(catId!=null)
+		{
+		criteria=criteria.and(new Criteria(new Column(getTableName(),CATEGORY.CATEGORY_ID),catId,QueryConstants.NOT_EQUAL));
+		}
 		selectQuery.addSelectColumn(new Column(null,"*"));
 		selectQuery.setCriteria(criteria);
 	    ArrayList<Category> categoryList=getRows(selectQuery);

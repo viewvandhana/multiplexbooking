@@ -80,11 +80,15 @@ public class ShowDAOMickeyImpl extends MickeyBaseDAO<Show> {
 	}
 	
 	
-	public int checkIfShowExist(String startTime,String endTime) throws ResponseFailureException
+	public int checkIfShowExist(Long showId,String startTime,String endTime) throws ResponseFailureException
 	{
 		SelectQuery selectQuery = new SelectQueryImpl(Table.getTable(getTableName())); 
 		Criteria criteria=new Criteria(new Column(getTableName(),SHOWDETAIL.SHOW_START_TIME),startTime,QueryConstants.EQUAL);
 		criteria=criteria.and(new Criteria(new Column(getTableName(),SHOWDETAIL.SHOW_END_TIME),endTime,QueryConstants.EQUAL));
+	    if(showId!=null)
+	    {
+		criteria=criteria.and(new Criteria(new Column(getTableName(),SHOWDETAIL.SHOW_ID),showId,QueryConstants.NOT_EQUAL));
+	    }
 		selectQuery.addSelectColumn(new Column(null,"*"));
 		selectQuery.setCriteria(criteria);
 	    ArrayList<Show> showList=getRows(selectQuery);

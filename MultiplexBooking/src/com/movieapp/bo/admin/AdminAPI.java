@@ -35,31 +35,11 @@ public class AdminAPI implements AdminAPIInterface{
 	@Override
 	public Show addShow(Show show) throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(show.getStartTime(),show.getEndTime())==0)
+		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(null,show.getStartTime(),show.getEndTime())==0)
 		{
 		try{
-		DataAccess.getTransactionManager().begin();
-			
 		Show showInserted=(Show)ServiceInstance.getShowService().insert(show);
-		DataAccess.getTransactionManager().commit();
-		
 		return showInserted;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -78,30 +58,12 @@ public class AdminAPI implements AdminAPIInterface{
 		try{
 			if(!JoinDAO.isTicketBookedForShow(id))
 			{
-				DataAccess.getTransactionManager().begin();
 				ServiceInstance.getShowService().deleteById(id);
-				DataAccess.getTransactionManager().commit();
 			}
 			else
 			{
 				throw new ResponseFailureException("Ticked booked for the show.Deletion cant be performed");
 			}
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -118,35 +80,16 @@ public class AdminAPI implements AdminAPIInterface{
 	{
 		
 	try{
-		DataAccess.getTransactionManager().begin();
 		
-		Show showUpdated=(Show)((ShowDAOMickeyImpl)ServiceInstance.getShowService()).updateShowById(show);
-		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(showUpdated.getStartTime(),showUpdated.getEndTime())<=1)
+		if(((ShowDAOMickeyImpl)ServiceInstance.getShowService()).checkIfShowExist(show.getId(),show.getStartTime(),show.getEndTime())>0)
 		{
-	
-		DataAccess.getTransactionManager().commit();
-		
-		return showUpdated;
+			Show showUpdated=(Show)((ShowDAOMickeyImpl)ServiceInstance.getShowService()).updateShowById(show);
+			return showUpdated;
 		}
 		throw new DataAccessException("Show already exists");
 	
 	}
-	catch(DataAccessException e)
-	{
-		try {
-			DataAccess.getTransactionManager().rollback();
-		} catch (IllegalStateException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SecurityException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SystemException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		}
-		throw new ResponseFailureException(e.getMessage());
-	}
+	
 	catch(Exception e)
 	{
 		throw new ResponseFailureException(e.getMessage());
@@ -522,28 +465,8 @@ public class AdminAPI implements AdminAPIInterface{
 		// TODO Auto-generated method stub
 		try{
 			
-		DataAccess.getTransactionManager().begin();
-		
 		Movie movieInserted=(Movie)ServiceInstance.getMovieService().insert(movie);
-		DataAccess.getTransactionManager().commit();
-		
 		return movieInserted;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -556,25 +479,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteMovie(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-		DataAccess.getTransactionManager().begin();
 		((MovieDAOMickeyImpl)ServiceInstance.getMovieService()).deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -591,30 +496,8 @@ public class AdminAPI implements AdminAPIInterface{
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
-			
-		
 		Movie movieUpdated=(Movie)((MovieDAOMickeyImpl)ServiceInstance.getMovieService()).updateMovieById(movie);
-		
-		DataAccess.getTransactionManager().commit();
-		
 		return movieUpdated; 
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -700,6 +583,9 @@ public class AdminAPI implements AdminAPIInterface{
 	@Override
 	public void deleteMovieShow(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		if(!((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).isTicketBookedForMovieShowId(id))
+		{
+			
 		try{
 			DataAccess.getTransactionManager().begin();
 			
@@ -727,6 +613,8 @@ public class AdminAPI implements AdminAPIInterface{
 		{
 			throw new ResponseFailureException(e.getMessage());
 		}
+		}
+		throw new ResponseFailureException("MovieShow cant be deleted as tickets are already booked for the show");
 		
 		
 	}
@@ -808,26 +696,8 @@ public class AdminAPI implements AdminAPIInterface{
 	public Seat addSeat(Seat seat) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		    Seat seatInserted=(Seat)ServiceInstance.getSeatService().insert(seat);
-		    DataAccess.getTransactionManager().commit();
 		    return seatInserted;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -841,25 +711,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteSeat(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		ServiceInstance.getSeatService().deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -879,28 +731,8 @@ public class AdminAPI implements AdminAPIInterface{
 	public Seat updateSeat(Seat seat) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
-			
 		Seat seatUpdated= (Seat)((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).updateSeatById(seat);
-		DataAccess.getTransactionManager().commit();
-		
 		return seatUpdated;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -916,25 +748,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteCustomer(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		ServiceInstance.getCustomerService().deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -948,30 +762,12 @@ public class AdminAPI implements AdminAPIInterface{
 	public Category addCategory(Category category)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(category.getCategoryName())==0)
+		if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(null,category.getCategoryName())==0)
 		{
 		
 		try{
-			DataAccess.getTransactionManager().begin();
 		Category categoryInserted=((Category)ServiceInstance.getCategoryService().insert(category));
-		DataAccess.getTransactionManager().commit();
 		return categoryInserted; 
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -987,25 +783,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteCategory(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		ServiceInstance.getCategoryService().deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -1021,33 +799,13 @@ public class AdminAPI implements AdminAPIInterface{
 		// TODO Auto-generated method stub
 	
 		try{
-			DataAccess.getTransactionManager().begin();
+			if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(category.getId(),category.getCategoryName())>0)
+			{
 			
-		Category categoryUpdated=(Category)((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).updateCategoryById(category);
-		if(((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).checkIfCategoryExist(categoryUpdated.getCategoryName())<=1)
-		{
-	
-		DataAccess.getTransactionManager().commit();
-		
-		return categoryUpdated; 
+			Category categoryUpdated=(Category)((CategoryDAOMickeyImpl)ServiceInstance.getCategoryService()).updateCategoryById(category);
+		    return categoryUpdated; 
 		}
 		throw new DataAccessException("Category already exists");
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -1063,30 +821,12 @@ public class AdminAPI implements AdminAPIInterface{
 	public Extra addExtra(Extra extra)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extra.getName())==0)
+		if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(null,extra.getName())==0)
 		{
 		
 		try{
-			DataAccess.getTransactionManager().begin();
 		Extra extraInserted=((Extra)ServiceInstance.getExtraService().insert(extra));
-		DataAccess.getTransactionManager().commit();
 		return extraInserted;
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -1103,25 +843,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteExtra(long id) throws ResponseFailureException {
 	// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		ServiceInstance.getExtraService().deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -1138,33 +860,13 @@ public class AdminAPI implements AdminAPIInterface{
 		// TODO Auto-generated method stub
 		
 		try{
-			DataAccess.getTransactionManager().begin();
 			
-		Extra extraUpdated=(Extra)((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).updateExtraById(extra);
-		if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extraUpdated.getName())<=1)
-		{
-		
-		DataAccess.getTransactionManager().commit();
-		
-		return extraUpdated;
+			if(((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).checkIfExtraExist(extra.getId(),extra.getName())>0)
+			{
+			Extra extraUpdated=(Extra)((ExtraDAOMickeyimpl)ServiceInstance.getExtraService()).updateExtraById(extra);
+		    return extraUpdated;
 		}
 		throw new DataAccessException("Extra already exists");
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{
@@ -1230,25 +932,7 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteShowSeat(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-			DataAccess.getTransactionManager().begin();
 		ServiceInstance.getShowSeatService().deleteById(id);
-		DataAccess.getTransactionManager().commit();
-		}
-		catch(DataAccessException e)
-		{
-			try {
-				DataAccess.getTransactionManager().rollback();
-			} catch (IllegalStateException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SecurityException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			} catch (SystemException e1) {
-				// TODO Auto-generated catch block
-				e1.printStackTrace();
-			}
-			throw new ResponseFailureException(e.getMessage());
 		}
 		catch(Exception e)
 		{

@@ -55,7 +55,7 @@ public class CategoryResource {
 
 		try {
 			if (id != null) {
-				new AdminAPI().deleteCustomer(id);
+				new AdminAPI().deleteCategory(id);
 				//return "Category Deletion Success";
 				return null;
 			} else {
