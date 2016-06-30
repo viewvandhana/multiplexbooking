@@ -1,0 +1,136 @@
+<?xml version="1.0" encoding="ISO-8859-1"?>
+<!-- $Id$ -->
+<security name="SAS Servlet URLs" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="security.xsd">
+	<urls>
+		<url path="/login/StatisticsProvider" internal="true">
+			<param name="type" regex="dbconn|schedules|memory|users|ucount|httperrstat|clear|tld|url|gmode|gd|temetrics|db_conn_tracing_info|notify_add_dbcluster|enable_trace|disable_trace|tracing_status|update_db_max_conn|set_stacktrace_filters" />
+			<param name="us" regex="sas_safestring" />
+			<param name="freq" regex="[0-9]*" />
+			<param name="clusterIP" regex="ipaddress" />
+			<param name="filterType" regex="IncludedPackages|ExcludedPackages|StackTraceDepth"/>
+			<param name="filterValues" regex="sas_safestring" max-len="255"/>
+		</url>
+
+		<url path="/login/SiteReplication" internal="true">
+			<param name="opr" regex="sas_safestring" />
+			<param name="clusterIP" regex="ipaddress" />
+			<param name="masterIP" regex="ipaddress" />
+			<param name="downloadServerIP" regex="ipaddress" />
+			<param name="serName" regex="safestring" />
+			<param name="path" regex="safestring" />
+			<param name="mc_override" regex="true"/>
+			<param name="ac_override" regex="true"/>
+			<param name="walfile" regex="safestring"/>
+                        <param name="mp" regex="safestring"/>
+                        <param name="destip" regex="ipaddress"/>
+			<param name="drVaultEnabled" regex="true|false"/>
+			<param name="drVaultIP" regex="ipaddress"/>
+			<param name="drVaultUser" regex="username"/>
+		</url>
+
+		<url path="/grid/login/URLInvoker" internal="true">
+			<param name="type" regex="sas_safestring" />
+			<param name="url_param" regex="httpparametervalue" max-len="500"/>
+		</url>
+
+		<url path="/login/enableAutoAccountCreation" post="true" internal="true">
+			<param name="method" regex="autoDSCreation|bulkExport" />
+			
+			<!-- Add Dataspace parameters -->
+			<param name="schcip" regex="[0-9\.]*" allow-empty="true" />
+			<param name="accountperschema" regex="[0-9]*" allow-empty="true" />
+			<param name="noofaccounts" regex="[0-9]*" allow-empty="true" />
+			<param name="days" regex="[0-9]" allow-empty="true" />
+			<param name="cid" regex="[0-9]*" allow-empty="true" />
+			<param name="accountCreationStatus" regex="rx_string" allow-empty="true" />
+		</url>
+																				 
+		<url path="/login/upgradeaction" roles="SASAdmin" post="true" csrf="true" multi-part="true" trusted="true" authentication="required">
+			<param name="method" regex="addDBUpgrade|upgradeRevert|prepareUpgrade|upgradeAction|updateDBUpgradeStatus|addDBUpgradeDomain|ignoreDataUpg|resetDataUpg|ignoreMetaDataUpg|resetMetaDataUpg|getUpgradeStatus|deleteDBUpgrade|createSchemas|commitAccountCreation|moveDataspace|reInitiateMoveDS|isUpgradeRunning"/>
+			<param name="appGrid" regex="sas_safestring" allow-empty="true" />
+			<param name="upgradeClassName" regex="filename" allow-empty="true" />
+			<param name="upgradeType" regex="DATA|META DATA|DATA &amp; META DATA" allow-empty="true" />
+			<param name="upgid" regex="[0-9]*" allow-empty="true" />
+			<param name="id" regex="[0-9]*" allow-empty="true" />
+			<param name="schema" regex="schemastring" allow-empty="true" />
+			<param name="stat" regex="[0-9]*" allow-empty="true" />
+			<param name="utype" regex="[0-9]*" allow-empty="true" />
+			<param name="desc" regex="description" allow-empty="true" />
+			<param name="className" regex="filename" allow-empty="true" />
+			<param name="expclip" regex="sas_safestring" allow-empty="true" />
+			<param name="expdb" regex="schemastring" allow-empty="true" />
+			<param name="thrds" regex="[0-9]*" allow-empty="true" />
+
+			<!--Following 7 parameters are accessed in the action class and stored in the DB but not used actually. Need to remove this during code cleanup.-->
+			<param name="creferval" regex="sas_safestring" allow-empty="true" />
+			<param name="dfName" regex="sas_safestring" allow-empty="true" />
+			<param name="dName" regex="sas_safestring" allow-empty="true" />
+			<param name="order" regex="sas_safestring" allow-empty="true" />
+			<param name="crefer" regex="true|false" allow-empty="true" />
+			<param name="dVal" regex="sas_safestring" allow-empty="true" />
+			<param name="csrfToken" regex="sas_safestring" allow-empty="true" />
+
+                        <param name="gridreqcsr" regex="sas_safestring" max-len="1000" allow-empty="true" />
+			<param name="group" regex="D|N" allow-empty="true" />
+			<param name="version" regex="segmentstring" allow-empty="true" />
+			<param name="category" regex="sas_safestring" allow-empty="true" />
+			<param name="description" regex="description" allow-empty="true" />
+			<param name="binary" regex="sas_safestring" allow-empty="true" />
+			<param name="versionType" regex="|revert|rerunUpgrade|upgradeOver|UpgradeOver|RevertOver" allow-empty="true" />
+			<param name="alldb" regex="false|true" allow-empty="true" />
+			<param name="umode" regex="select|upgrade|revert" allow-empty="true" />
+			<param name="individualButton" regex="Start Upgrade" allow-empty="true" />
+			<param name="filesToUpload" regex="splcharstr" max-len="50000" allow-empty="true" />
+			<file name="file0" content-type-name="uploadISUFiles" max-size="102400" />
+			<file name="file1" content-type-name="uploadISUFiles" max-size="102400" />
+			<file name="file2" content-type-name="uploadISUFiles" max-size="102400" />
+			<file name="file3" content-type-name="uploadISUFiles" max-size="102400" />
+			<file name="file4" content-type-name="uploadISUFiles" max-size="102400" />
+
+			<!-- Add Database parameters -->
+			<param name="schcip" regex="[0-9\.]*" allow-empty="true" />
+			<param name="accountperschema" regex="[0-9]*" allow-empty="true" />
+			<param name="noofaccounts" regex="[0-9]*" allow-empty="true" />
+			<param name="days" regex="[0-9]" allow-empty="true" />
+			<param name="cid" regex="[0-9]*" allow-empty="true" />
+			<param name="accountCreationStatus" regex="rx_string" allow-empty="true" />
+
+			<!-- Move dataspace parameters -->
+			<param name="process" regex="|Locking Dataspace|Moving Dataspace|Updating Dataspace Mapping|Unlocking Dataspace|Locking Schema|Moving Schema|Updating Schema Mapping|Unlocking Schema|Reinitiating Move Dataspace|Reverting Move Dataspace" allow-empty="true" />
+			<param name="step" regex="[0-9]*" allow-empty="true" />
+			<param name="movedsdestclip" regex="[0-9\.]*" allow-empty="true" />
+			<param name="movedsdestschema" regex="schemastring" allow-empty="true" />
+			<param name="srcCluster" regex="safestring" allow-empty="true" />
+			<param name="movedssrcschema" regex="schemastring" allow-empty="true" />
+			<param name="accName" regex="username" allow-empty="true" />
+		</url>
+
+    <url path="/grid/login/servercheck.jsp"  internal="true">
+      <param name="internalcheck" regex="true|false" />
+    </url>
+
+    <url path="/_app/health"  internal="true">
+      <param name="internalcheck" regex="true|false" />
+      <param name="softkill" regex="true|false" />
+    </url>
+
+    <url path="/login/sas.jsp" />
+
+	</urls>
+
+	<content-types>
+		<content-type name="uploadISUFiles" content-types=".*" />
+	</content-types>
+
+	<regexes>
+		<regex name="rx_string" value="^[a-zA-Z0-9\-_ ]*" />
+		<regex name="sas_safestring" value="^[a-zA-Z0-9\s\+?!,()@%.\-:_*\./\\=]+$"/>
+		<regex name="safestring" value="^[a-zA-Z0-9\s\+?!,()@%.\-:_*\./\\=]+$"/>
+		<regex name="schemastring" value="^[A-Za-z0-9]+$"/>
+		<regex name="description" value="^[a-zA-Z0-9\s\+?!,;%()@.\-:_*\./\\=\[\]\{\#\}$~\^]+$"/> 
+		<regex name="segmentstring" value="^[a-zA-Z0-9\s\+!,.\-:_*\.;]+$"/>
+		<regex name="splcharstr" value="^[a-zA-Z0-9\s\+?!,;%()@.\-:_*\./\\=\[\]\{\#\}$`~\^]+$"/>
+	</regexes>
+
+</security>
+

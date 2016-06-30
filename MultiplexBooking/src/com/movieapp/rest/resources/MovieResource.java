@@ -27,7 +27,7 @@ public class MovieResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response addMovie(String jObj) {
+	public String addMovie(String jObj) {
 
 		try {
 			JSONObject j = new JSONObject(jObj);
@@ -37,15 +37,15 @@ public class MovieResource {
 			
 			String response= ObjectMapperUtil.getCustomMappedString("movie",
 					new AdminAPI().addMovie(movie));
-			return Response.ok(response).build();
+			return response;
 		} catch (ResponseFailureException e) {
 			
-			String error= e.getErrorJson();
-			return Response.status(422).entity(error).build();
+			return e.getErrorJson();
+			//return Response.status(422).entity(error).build();
 		} catch (Exception e) {
 			
-			String error=new ResponseFailureException(e.getMessage()).getErrorJson();
-			return Response.status(422).entity(error).build();
+			return new ResponseFailureException(e.getMessage()).getErrorJson();
+			//return Response.status(422).entity(error).build();
 		}
 
 	}

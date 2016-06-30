@@ -65,26 +65,26 @@ public class CustomerResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response validateCustomer(@QueryParam("action") String action,
+	public String validateCustomer(@QueryParam("action") String action,
 			@QueryParam("email") String emailId) {
 
 		try {
 			if (action == null) {
 				String resp= ObjectMapperUtil.getCustomMappedString("customers",
 						new AdminAPI().getCustomers());
-				return Response.ok(resp).build();
-
+				//return Response.ok(resp).build();
+				return resp;
 			}
 			if (action.equals("checkCustomer")) {
-				String resp= new UserAPI().checkCustomer(emailId);
-				return Response.ok(resp).build();
+				return new UserAPI().checkCustomer(emailId);
+				//return Response.ok(resp).build();
 			} else {
-				String error=new ResponseFailureException("No such operation").getErrorJson();
-				return Response.status(422).entity(error).build();
+				 return new ResponseFailureException("No such operation").getErrorJson();
+				//return Response.status(422).entity(error).build();
 			}
 		} catch (ResponseFailureException e) {
-			String error= e.getErrorJson();
-			return Response.status(422).entity(error).build();
+			return e.getErrorJson();
+			//return Response.status(422).entity(error).build();
 		}
 
 	}

@@ -1,0 +1,45 @@
+<!-- $Id$ -->
+<Server port="-1" debug="4">
+
+  <Service name="Catalina" debug="10">
+
+    <Connector port="8080"
+               maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+               enableLookups="false" redirectPort="8443" acceptCount="100" bindOnInit="false"
+               debug="4" connectionTimeout="20000"
+	       disableUploadTimeout="true" URIEncoding="UTF-8"
+	       compression="on"
+	       compressionMinSize="1024"
+	       noCompressionUserAgents="gozilla, traviata"
+	       server="ZGS"
+	       compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain,application/javascript,application/json,application/x-javascript,application/xml,text/event-stream" /> 
+
+    <Connector port="8443"
+               maxThreads="150" minSpareThreads="25" maxSpareThreads="75"
+               enableLookups="false" scheme="https" acceptCount="100" bindOnInit="false"
+               debug="4" connectionTimeout="20000" 
+	       disableUploadTimeout="true" URIEncoding="UTF-8"
+	       compression="on"
+	       compressionMinSize="1024"
+	       noCompressionUserAgents="gozilla, traviata"
+	       server="ZGS"
+	       compressableMimeType="text/html,text/xml,text/javascript,text/css,text/plain,application/javascript,application/json,application/x-javascript,application/xml,text/event-stream" /> 
+
+    <Engine name="Catalina" defaultHost="localhost" debug="4">
+
+      <Host name="localhost" debug="4" appBase="webapps"
+       unpackWARs="true" autoDeploy="false"
+       xmlValidation="false" xmlNamespaceAware="false">
+
+      <Valve className="org.apache.catalina.authenticator.SingleSignOn" debug="0"/>
+       
+
+	  <Logger className="org.apache.catalina.logger.FileLogger"  directory="../logs"  prefix="catalina_"  suffix=".log"  />
+
+      </Host>
+
+    </Engine>
+
+  </Service>
+
+</Server>
