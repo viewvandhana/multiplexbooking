@@ -97,7 +97,7 @@ public class UserAPI implements UserAPIInterface{
 			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
 			TicketResponseWrapper ticketResponseWrapper=JoinDAO.getTicketDetail(ticketInserted.getId());
 			DataAccess.getTransactionManager().commit();
-			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketResponseWrapper.getSeatNameSring());
+			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketResponseWrapper.obtainSeatNameSring());
 			return ticketResponseWrapper;
 		}
 		catch(DataAccessException e)
@@ -138,7 +138,7 @@ public class UserAPI implements UserAPIInterface{
 			ArrayList<TicketCharge> ticketChargesList=ticketWrapper.getTicketcharges();
 			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
 			TicketResponseWrapper ticketResponseWrapper=JoinDAO.getTicketDetail(ticket.getId());
-			sendSms(ticket.getId(),ticket.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticket.getMovieShowID()),ticketResponseWrapper.getSeatNameSring());
+			sendSms(ticket.getId(),ticket.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticket.getMovieShowID()),ticketResponseWrapper.obtainSeatNameSring());
 			return ticketResponseWrapper;
 		}
 		

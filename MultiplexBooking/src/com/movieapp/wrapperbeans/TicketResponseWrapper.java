@@ -89,7 +89,7 @@ public class TicketResponseWrapper {
 		this.customers = customers;
 	}
 	
-	public String getSeatNameSring()
+	public String obtainSeatNameSring()
 	{
 		String seatNameStr="";
 		 for(int i=0;i<seats.size();i++)
