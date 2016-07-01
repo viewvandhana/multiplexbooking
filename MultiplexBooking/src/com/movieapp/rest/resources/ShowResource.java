@@ -1,5 +1,8 @@
 package com.movieapp.rest.resources;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -10,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -21,6 +25,7 @@ import com.movieapp.bo.admin.CommonAPI;
 // Plain old Java Object it does not extend as class or implements 
 // an interface
 import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.ShowWrapper;
 
 @Path("/shows")
 public class ShowResource {
@@ -28,18 +33,15 @@ public class ShowResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addShow(String show) {
+	public Response addShow(ShowWrapper showWrapper) {
 		try {
-			JSONObject j = new JSONObject(show);
-			JSONObject showJson = j.optJSONObject("show");
-			Show showObj = ObjectMapperUtil.getMapper().readValue(
-					showJson.toString(), Show.class);
-			return ObjectMapperUtil.getCustomMappedString("show",
-					new AdminAPI().addShow(showObj));
+			Show showObj = showWrapper.getShow();
+			HashMap<String,Show> show=new HashMap<String, Show>();
+			show.put("show",new AdminAPI().addShow(showObj));
+			return Response.ok(show).build();
+	
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -66,12 +68,13 @@ public class ShowResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllShows(@QueryParam("fields") String fields) {
+	public Response getAllShows(@QueryParam("fields") String fields) {
 		try {
-			return ObjectMapperUtil.getCustomMappedString("shows",
-					new CommonAPI().getShows(fields));
+			HashMap<String, ArrayList<Show>> shows=new HashMap<String, ArrayList<Show>>();
+			shows.put("shows", new CommonAPI().getShows(fields));
+			return Response.ok(shows).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -80,33 +83,31 @@ public class ShowResource {
 	@Path("{show_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateShow(String show,@PathParam("show_id") Long showId) {
+	public Response updateShow(ShowWrapper showWrapper,@PathParam("show_id") Long showId) {
 
 		try {
-			JSONObject j = new JSONObject(show);
-			JSONObject showJson = j.optJSONObject("show");
-			Show showObj = ObjectMapperUtil.getMapper().readValue(
-					showJson.toString(), Show.class);
+			
+			Show showObj = showWrapper.getShow();
 			showObj.setId(showId);
-			return ObjectMapperUtil.getCustomMappedString("show",
-					new AdminAPI().updateShow(showObj));
+			HashMap<String,Show> show=new HashMap<String, Show>();
+			show.put("show",new AdminAPI().updateShow(showObj));
+			return Response.ok(show).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 
 	}
 	@GET
 	@Path("{show_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getShowById(@PathParam("show_id") Long id,@QueryParam("fields") String fields) {
+	public Response getShowById(@PathParam("show_id") Long id,@QueryParam("fields") String fields) {
 		
 		try {
-			return ObjectMapperUtil.getCustomMappedString("show",
-					new CommonAPI().getShowsById(id, fields));
+			HashMap<String,Show> show=new HashMap<String, Show>();
+			show.put("show",new CommonAPI().getShowsById(id, fields));
+			return Response.ok(show).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 	
 	}

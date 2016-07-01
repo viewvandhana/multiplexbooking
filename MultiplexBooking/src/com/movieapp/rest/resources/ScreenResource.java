@@ -10,11 +10,14 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import Exception.ResponseFailureException;
 
 import com.movieapp.bo.admin.AdminAPI;
 import com.movieapp.bo.admin.CommonAPI;
+import com.movieapp.wrapperbeans.ScreenSeatWrapper;
+import com.movieapp.wrapperbeans.ScreenWrapper;
 
 @Path("/screens")
 public class ScreenResource {
@@ -22,12 +25,12 @@ public class ScreenResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addScreen(String screen) {
+	public Response addScreen(ScreenWrapper screenWrapper) {
 
 		try {
-			return new AdminAPI().addScreen(screen);
+			return Response.ok(new AdminAPI().addScreen(screenWrapper.getScreen())).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -54,13 +57,13 @@ public class ScreenResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllScreens() {
+	public Response getAllScreens() {
 
 		try {
 			
-			return new CommonAPI().getScreens();
+			return Response.ok(new CommonAPI().getScreens()).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -68,13 +71,13 @@ public class ScreenResource {
 	@GET
 	@Path("{screen_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getScreenById(@PathParam("screen_id") Long screenId) {
+	public Response getScreenById(@PathParam("screen_id") Long screenId) {
 
 		try {
 			
-					return new CommonAPI().getScreenForId(screenId);
+		  return Response.ok(new CommonAPI().getScreenForId(screenId)).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		} 
 
 	}
@@ -83,26 +86,26 @@ public class ScreenResource {
 	@Path("{screen_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateScreen(@QueryParam("action") String action,
-			String screen,@PathParam("screen_id") Long screenId) {
+	public Response updateScreen(@QueryParam("action") String action,
+			ScreenWrapper screenWrapper,@PathParam("screen_id") Long screenId) {
 
 		try{
 		if (action == null) {
-			return new AdminAPI().updateScreen(screen,screenId);
+			return Response.ok(new AdminAPI().updateScreen(screenWrapper.getScreen(),screenId)).build();
 
 		}
 		else if (action.equals("modifySeats")) {
-			return new AdminAPI().updateScreenSeats(screen,screenId);
+			return Response.ok(new AdminAPI().updateScreenSeats(screenWrapper.getScreen(),screenId)).build();
 			// return "Screen updation Success";
 		}
 		else
 		{
-			return new ResponseFailureException("No such operation").getErrorJson();
+			return Response.ok(new ResponseFailureException("No such operation").getErrorJson()).build();
 		}
 		}
 		catch(ResponseFailureException e)
 		{
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 		
 

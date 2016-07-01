@@ -92,12 +92,12 @@ public class CustomerDAOMickeyImpl extends MickeyBaseDAO<Customer> {
 	}
 	
 	
-	public String checkCustomer(String mailId) throws ResponseFailureException
+	public Customer checkCustomer(String mailId) throws ResponseFailureException
 	{
 		Customer customer=getCustomer(mailId);
 		if(customer!=null)
 		{
-			return ObjectMapperUtil.getCustomMappedString("customer",customer);
+			return customer;
 		}
 		else
 		{

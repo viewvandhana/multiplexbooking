@@ -1,6 +1,5 @@
 package com.movieapp.bo.admin;
 
-import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -22,6 +21,9 @@ import com.movieapp.beans.TicketCharge;
 import com.movieapp.daoimpl.CustomerDAOMickeyImpl;
 import com.movieapp.daoimpl.JoinDAO;
 import com.movieapp.daoimpl.ShowSeatDAOMickeyImpl;
+import com.movieapp.wrapperbeans.MovieShowSeatResponseWrapper;
+import com.movieapp.wrapperbeans.TicketResponseWrapper;
+import com.movieapp.wrapperbeans.TicketWrapper;
 import com.twilio.sdk.TwilioRestClient;
 import com.twilio.sdk.TwilioRestException;
 import com.twilio.sdk.resource.factory.MessageFactory;
@@ -64,48 +66,39 @@ public class UserAPI implements UserAPIInterface{
 	}
 
 	@Override
-	public String checkCustomer(String mailId) throws ResponseFailureException {
+	public Customer checkCustomer(String mailId) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((CustomerDAOMickeyImpl)ServiceInstance.getCustomerService()).checkCustomer(mailId);
 		
 	}
 
 	@Override
-	public String getShowSeatsForTicket(Long ticketId)
+	public MovieShowSeatResponseWrapper getShowSeatsForTicket(Long ticketId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).getShowSeatsByTicketId(ticketId);
 	}
 
 	@Override
-	public String bookTicket(String ticketInput)
+	public TicketResponseWrapper bookTicket(TicketWrapper ticketWrapper)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
 			DataAccess.getTransactionManager().begin();
-			JSONObject ticketInputObj=new JSONObject(ticketInput);
-			JSONObject ticketDetailObj=ticketInputObj.optJSONObject("ticket");
-			
-			Ticket ticket =new Ticket(null,ticketDetailObj.optLong("movieShowID") ,ticketDetailObj.optLong("customerID"),Float.parseFloat(ticketDetailObj.optString("totalCost")));
+			Ticket ticket =ticketWrapper.constructTicket();
 			Ticket ticketInserted=addTicket(ticket);
-			JSONArray showSeatsArray=ticketDetailObj.optJSONArray("showseats");
-			for(int i=0;i<showSeatsArray.length();i++)
+			ArrayList<Long> showSeatsList=ticketWrapper.getShowseats();
+			for(int i=0;i<showSeatsList.size();i++)
 			{
-				((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).updateShowSeatByMovieShowId(ticketInserted.getMovieShowID(),ticketInserted.getId(),showSeatsArray.optLong(i));
+				((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).updateShowSeatByMovieShowId(ticketInserted.getMovieShowID(),ticketInserted.getId(),showSeatsList.get(i));
 				
 			}
-			JSONArray ticketChargesArray=ticketDetailObj.optJSONArray("ticketcharges");
-			ArrayList<TicketCharge> ticketChargesList=new ArrayList<TicketCharge>();
-			for(int i=0;i<ticketChargesArray.length();i++)
-			{
-			JSONObject chargeObj=ticketChargesArray.optJSONObject(i);	
-			ticketChargesList.add(new TicketCharge(null, ticketInserted.getId(),chargeObj.optLong("extraID") , chargeObj.optInt("quantity")));
-			}
+			ArrayList<TicketCharge> ticketChargesList=ticketWrapper.getTicketcharges();
 			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
-			HashMap<String, String> ticketDetail=JoinDAO.getTicketDetail(ticketInserted.getId(),ticketChargesList.size()==0?false:true);
+			TicketResponseWrapper ticketResponseWrapper=JoinDAO.getTicketDetail(ticketInserted.getId());
 			DataAccess.getTransactionManager().commit();
-			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketDetail.get("seatNames"));
-			return ticketDetail.get("finalResponse");
+			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketResponseWrapper.getSeatNameSring());
+			return ticketResponseWrapper;
 		}
 		catch(DataAccessException e)
 		{
@@ -129,6 +122,26 @@ public class UserAPI implements UserAPIInterface{
 			}
 			throw new ResponseFailureException(e.getMessage());
 		}
+		catch(Exception e)
+		{
+			throw new ResponseFailureException(e.getMessage());
+		}
+
+	}
+	
+	@Override
+	public TicketResponseWrapper updateTicket(TicketWrapper ticketWrapper)
+			throws ResponseFailureException {
+		// TODO Auto-generated method stub
+		try{
+			Ticket ticket =ticketWrapper.constructTicket();
+			ArrayList<TicketCharge> ticketChargesList=ticketWrapper.getTicketcharges();
+			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
+			TicketResponseWrapper ticketResponseWrapper=JoinDAO.getTicketDetail(ticket.getId());
+			sendSms(ticket.getId(),ticket.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticket.getMovieShowID()),ticketResponseWrapper.getSeatNameSring());
+			return ticketResponseWrapper;
+		}
+		
 		catch(Exception e)
 		{
 			throw new ResponseFailureException(e.getMessage());

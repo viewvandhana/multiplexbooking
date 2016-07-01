@@ -18,6 +18,7 @@ import com.adventnet.persistence.Row;
 import com.movieapp.beans.Seat;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
+import com.movieapp.wrapperbeans.SeatResponseWrapper;
 
 public class SeatDAOMickeyImpl extends MickeyBaseDAO<Seat>{
 	RowAdapter<Seat> rowAdapter=new RowAdapter<Seat>() {
@@ -121,13 +122,15 @@ public class SeatDAOMickeyImpl extends MickeyBaseDAO<Seat>{
 		
 	}
 	
-	public String getSeatsForScreen(Long screenId) throws ResponseFailureException
+	public SeatResponseWrapper getSeatById(Long seatId) throws ResponseFailureException
 	{
-		Criteria criteria=new Criteria(new Column(getTableName(),SEAT.SCREEN_ID),screenId,QueryConstants.EQUAL);
-	    return JoinDAO.getSeatsForScreenOnJoinCriteria(criteria);
-	
+		
+		 Criteria criteria=new Criteria(new Column(getTableName(),SEAT.SEAT_ID),seatId,QueryConstants.EQUAL);
+		 return JoinDAO.getSeatOnJoinCriteria(criteria);  
 	}
+
 }
+
 
 	
 

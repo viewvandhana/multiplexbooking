@@ -1,5 +1,8 @@
 package com.movieapp.rest.resources;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -10,6 +13,7 @@ import javax.ws.rs.PathParam;
 import javax.ws.rs.Produces;
 import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 import org.json.JSONObject;
 
@@ -19,6 +23,7 @@ import com.movieapp.beans.Category;
 import com.movieapp.bo.admin.AdminAPI;
 import com.movieapp.bo.admin.CommonAPI;
 import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.CategoryWrapper;
 
 @Path("/categories")
 public class CategoryResource {
@@ -26,24 +31,19 @@ public class CategoryResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-		public String addCategory(String category) {
+		public Response addCategory(CategoryWrapper categoryWrapper) {
 
 		try {
-			JSONObject j = new JSONObject(category);
-			JSONObject categoryJson = j.optJSONObject("category");
-			Category categoryObj = ObjectMapperUtil.getMapper().readValue(
-					categoryJson.toString(), Category.class);
-			return ObjectMapperUtil.getCustomMappedString("category",
-					new AdminAPI().addCategory(categoryObj));
+			Category categoryObj =categoryWrapper.getCategory();
+			HashMap<String,Category> addedCategory=new HashMap<String, Category>();
+			addedCategory.put("category", new AdminAPI().addCategory(categoryObj));
+			return Response.ok(addedCategory).build();
 		}
 		catch(ResponseFailureException e)
 		{
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
-		catch(Exception e)
-		{
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+		
 		
 
 	}
@@ -56,7 +56,6 @@ public class CategoryResource {
 		try {
 			if (id != null) {
 				new AdminAPI().deleteCategory(id);
-				//return "Category Deletion Success";
 				return null;
 			} else {
 				throw new ResponseFailureException("Please provide category id");
@@ -70,14 +69,16 @@ public class CategoryResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllCategories(@QueryParam("fields") String fields) {
+	public Response getAllCategories(@QueryParam("fields") String fields) {
 		try{
-		return ObjectMapperUtil.getCustomMappedString("categories",
-				new CommonAPI().getCategories(fields));
+			HashMap<String,ArrayList<Category>> categoryList=new HashMap<String, ArrayList<Category>>();
+			categoryList.put("categories",new CommonAPI().getCategories(fields));
+			return Response.ok(categoryList).build();
+		 
 		}
 		catch(ResponseFailureException e)
 		{
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -86,13 +87,15 @@ public class CategoryResource {
 	@GET
 	@Path("{category_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCategoryById(@PathParam("category_id") Long id,@QueryParam("fields") String fields) {
+	public Response getCategoryById(@PathParam("category_id") Long id,@QueryParam("fields") String fields) {
 		
 		try {
-			return ObjectMapperUtil.getCustomMappedString("category",
-					new CommonAPI().getCategoryById(id,fields));
+			HashMap<String,Category> category=new HashMap<String, Category>();
+			category.put("category", new CommonAPI().getCategoryById(id,fields));
+		    return Response.ok(category).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
+			
 		}
 	
 	}
@@ -101,24 +104,20 @@ public class CategoryResource {
 	@Path("{category_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateCategory(String category,@PathParam("category_id") Long categoryId) {
+	public Response updateCategory(CategoryWrapper categoryWrapper,@PathParam("category_id") Long categoryId) {
 
 		try {
-			JSONObject j = new JSONObject(category);
-			JSONObject categoryJson = j.optJSONObject("category");
-			Category categoryObj = ObjectMapperUtil.getMapper().readValue(
-					categoryJson.toString(), Category.class);
+			Category categoryObj = categoryWrapper.getCategory();
 			categoryObj.setId(categoryId);
-			return ObjectMapperUtil.getCustomMappedString("category",
-					new AdminAPI().updateCategory(categoryObj));
-
+			HashMap<String,Category> updatedCategory=new HashMap<String, Category>();
+			updatedCategory.put("category", new AdminAPI().updateCategory(categoryObj));
+			return Response.ok(updatedCategory).build();
+	
+	
 		}
 		catch(ResponseFailureException e)
 		{
-			return e.getErrorJson();
-		}
-		catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 	
 	}

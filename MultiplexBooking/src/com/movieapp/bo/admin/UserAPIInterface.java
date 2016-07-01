@@ -1,22 +1,24 @@
 package com.movieapp.bo.admin;
 
-import java.util.ArrayList;
-
 import Exception.ResponseFailureException;
 
 import com.movieapp.beans.Customer;
+import com.movieapp.wrapperbeans.MovieShowSeatResponseWrapper;
+import com.movieapp.wrapperbeans.TicketResponseWrapper;
+import com.movieapp.wrapperbeans.TicketWrapper;
 
 public interface UserAPIInterface {
 
 	//customer
 	public Customer addCustomer(Customer customer) throws ResponseFailureException;
 	public Customer updateCustomer(Customer customer) throws ResponseFailureException;
-	public String checkCustomer(String mailId) throws ResponseFailureException;
+	public Customer checkCustomer(String mailId) throws ResponseFailureException;
 	
 	//showseats
-	public String getShowSeatsForTicket(Long ticketId) throws ResponseFailureException;
+	public MovieShowSeatResponseWrapper getShowSeatsForTicket(Long ticketId) throws ResponseFailureException;
 	
 	//ticket
-	public String bookTicket(String ticketInput) throws ResponseFailureException;
+	public TicketResponseWrapper bookTicket(TicketWrapper ticketInput) throws ResponseFailureException;
+	public TicketResponseWrapper updateTicket(TicketWrapper ticketWrapper) throws ResponseFailureException;
 	
 }

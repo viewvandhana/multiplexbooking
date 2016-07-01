@@ -6,7 +6,6 @@ import Exception.ResponseFailureException;
 
 import com.adventnet.ds.query.Column;
 import com.adventnet.ds.query.Criteria;
-import com.adventnet.ds.query.Join;
 import com.adventnet.ds.query.QueryConstants;
 import com.adventnet.ds.query.SelectQuery;
 import com.adventnet.ds.query.SelectQueryImpl;
@@ -14,18 +13,12 @@ import com.adventnet.ds.query.Table;
 import com.adventnet.ds.query.UpdateQuery;
 import com.adventnet.ds.query.UpdateQueryImpl;
 import com.adventnet.moviebooking.SCREEN;
-import com.adventnet.moviebooking.SHOWDETAIL;
 import com.adventnet.persistence.DataAccessException;
-import com.adventnet.persistence.DataObject;
 import com.adventnet.persistence.Row;
 import com.movieapp.beans.Screen;
-import com.movieapp.beans.Show;
-import com.movieapp.daofactory.CategoryDAOFactory;
-import com.movieapp.daofactory.ScreenDAOFactory;
-import com.movieapp.daofactory.SeatDAOFactory;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
-import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.ScreenSeatResponseWrapper;
 
 public class ScreenDAOMickeyImpl extends MickeyBaseDAO<Screen>{
 
@@ -83,12 +76,12 @@ public class ScreenDAOMickeyImpl extends MickeyBaseDAO<Screen>{
 		return SCREEN.SCREEN_ID;
 	}
 	
-	public String getAllScreens() throws ResponseFailureException
+	public ScreenSeatResponseWrapper getAllScreens() throws ResponseFailureException
 	{
 		return JoinDAO.getScreensOnJoinCriteria(null);
 	}
 
-	public String getScreenForId(Long screenId) throws ResponseFailureException
+	public ScreenSeatResponseWrapper getScreenForId(Long screenId) throws ResponseFailureException
 	{
 	    Criteria criteria=new Criteria(new Column(SCREEN.TABLE,SCREEN.SCREEN_ID),screenId,QueryConstants.EQUAL);
 		return JoinDAO.getScreensOnJoinCriteria(criteria);

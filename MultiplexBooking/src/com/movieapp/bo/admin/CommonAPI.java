@@ -10,11 +10,16 @@ import com.movieapp.beans.Extra;
 import com.movieapp.beans.Movie;
 import com.movieapp.beans.MovieShow;
 import com.movieapp.beans.Show;
+import com.movieapp.beans.ShowSeat;
 import com.movieapp.daoimpl.JoinDAO;
 import com.movieapp.daoimpl.MovieDAOMickeyImpl;
 import com.movieapp.daoimpl.MovieShowDAOMickeyImpl;
 import com.movieapp.daoimpl.ScreenDAOMickeyImpl;
 import com.movieapp.daoimpl.ShowSeatDAOMickeyImpl;
+import com.movieapp.wrapperbeans.MovieShowResponseWrapper;
+import com.movieapp.wrapperbeans.MovieShowSeatResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatResponseWrapper;
+import com.movieapp.wrapperbeans.TicketResponseWrapper;
 
 public class CommonAPI implements CommonAPIInterface{
 
@@ -26,13 +31,13 @@ public class CommonAPI implements CommonAPIInterface{
 	}
 
 	@Override
-	public String getScreens() throws ResponseFailureException {
+	public ScreenSeatResponseWrapper getScreens() throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).getAllScreens();
 	}
 
 	@Override
-	public String getScreenForId(Long screenId) throws ResponseFailureException {
+	public ScreenSeatResponseWrapper getScreenForId(Long screenId) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).getScreenForId(screenId);
 		
@@ -61,14 +66,14 @@ public class CommonAPI implements CommonAPIInterface{
 	}
 
 	@Override
-	public String getMovieShowsByMovieShowId(Long msId)
+	public MovieShowResponseWrapper getMovieShowsByMovieShowId(Long msId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).getMovieShowById(msId);
 	}
 
 	@Override
-	public String getMovieShowsByFilters(String date, Long movieId,
+	public MovieShowResponseWrapper getMovieShowsByFilters(String date, Long movieId,
 			Long screenId) throws ResponseFailureException {
 		// TODO Auto-generated method stub
         return ((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).getMovieShowsByFilters(date,movieId,screenId);
@@ -113,16 +118,22 @@ public class CommonAPI implements CommonAPIInterface{
 	}
 
 	@Override
-	public String getShowSeats(Long msId) throws ResponseFailureException {
+	public MovieShowSeatResponseWrapper getShowSeats(Long msId) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		return ((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).getCompleteShowSeatsByMovieShowId(msId);
 	}
+	@Override
+	public MovieShowSeatResponseWrapper getShowSeatByID(ArrayList<Long> showSeatList) throws ResponseFailureException {
+		// TODO Auto-generated method stub
+		
+		return ((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).getCompleteShowSeatsByShowSeatId(showSeatList);
+	}
 
 	@Override
-	public String getTicketDetail(Long ticketId)
+	public TicketResponseWrapper getTicketDetail(Long ticketId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		return JoinDAO.getTicketDetail(ticketId,true).get("finalResponse");
+		return JoinDAO.getTicketDetail(ticketId);
 	}
 
 	@Override
@@ -133,4 +144,15 @@ public class CommonAPI implements CommonAPIInterface{
 		return ServiceInstance.getShowService().getById(id, fields);
 	}
 
+	@Override
+	public void deleteTicket(Long ticketId) throws ResponseFailureException {
+		// TODO Auto-generated method stub
+		try{ 
+		ServiceInstance.getTicketService().deleteById(ticketId);
+		}
+		catch(Exception e)
+		{
+			throw new ResponseFailureException(e.getMessage());
+		}
+	}
 }

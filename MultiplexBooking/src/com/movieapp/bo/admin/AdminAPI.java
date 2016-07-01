@@ -29,7 +29,10 @@ import com.movieapp.daoimpl.ShowDAOMickeyImpl;
 import com.movieapp.daoimpl.ShowSeatDAOMickeyImpl;
 import com.movieapp.daoimpl.TicketDAOMickeyImpl;
 import com.movieapp.util.AppUtil;
-import com.movieapp.util.JSONParser;
+import com.movieapp.wrapperbeans.MovieShowResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatWrapper;
+import com.movieapp.wrapperbeans.SeatResponseWrapper;
 public class AdminAPI implements AdminAPIInterface{
 
 	@Override
@@ -105,9 +108,9 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public String addScreen(String screenObj) throws ResponseFailureException {
+	public ScreenSeatResponseWrapper addScreen(ScreenSeatWrapper screenSeatWrapper) throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
+		Screen screen=screenSeatWrapper.getScreenObject(); 
 			
 		if(((ScreenDAOMickeyImpl)ServiceInstance.getScreenService()).checkIfScreenExist(screen.getScreenName())==0)
 		{	
@@ -116,10 +119,10 @@ public class AdminAPI implements AdminAPIInterface{
 		
 		Screen screenInserted=(Screen)ServiceInstance.getScreenService().insert(screen);
 		
-		ArrayList<Seat> seatList=JSONParser.INSTANCE.getSeatsArray(screenObj);
+		ArrayList<Seat> seatList=screenSeatWrapper.getSeats();
 		for(int i=0;i<seatList.size();i++)
 		{
-			Seat seat=seatList.get(i);
+			Seat seat=(Seat)seatList.get(i);
 			seat.setName(AppUtil.Instance.generateSeatName(seat.getRowNumber(), seat.getColumnNumber()));
 			seat.setScreenID(screenInserted.getId());
 			
@@ -192,10 +195,10 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public String updateScreen(String screenObj,Long screenId)
+	public ScreenSeatResponseWrapper updateScreen(ScreenSeatWrapper screenSeatWrapper,Long screenId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
+		Screen screen=screenSeatWrapper.getScreenObject();
 		
 		try{
 			DataAccess.getTransactionManager().begin();
@@ -209,7 +212,7 @@ public class AdminAPI implements AdminAPIInterface{
 		if(!JoinDAO.isTicketBookedForScreen(screen.getId()))
 		{
 		deleteSeatsOnScreenUpdate(screen, msId);
-		ArrayList<Seat> seatList=JSONParser.INSTANCE.getSeatsArray(screenObj);
+		ArrayList<Seat> seatList=screenSeatWrapper.getSeats();
 		ArrayList<ShowSeat> showSeatList=new ArrayList<ShowSeat>();
 		
 		for(int i=0;i<seatList.size();i++)
@@ -241,7 +244,7 @@ public class AdminAPI implements AdminAPIInterface{
 		else
 		{
 			deleteSeatsOnScreenUpdate(screen, msId);
-			ArrayList<Seat> seatList=JSONParser.INSTANCE.getSeatsArray(screenObj);
+			ArrayList<Seat> seatList=screenSeatWrapper.getSeats();
 			for(int i=0;i<seatList.size();i++)
 			{
 				Seat seat=seatList.get(i);
@@ -281,17 +284,17 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public String updateScreenSeats(String screenObj,Long screenId)
+	public ScreenSeatResponseWrapper updateScreenSeats(ScreenSeatWrapper screenSeatWrapper,Long screenId)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
 			
 			DataAccess.getTransactionManager().begin();
 			
-		ArrayList<Seat> seatList=JSONParser.INSTANCE.getSeatsArray(screenObj);
+		ArrayList<Seat> seatList=screenSeatWrapper.getSeats();
 		ArrayList<Seat> seatListToBeAdded=new ArrayList<Seat>();
 	
-		Screen screen=JSONParser.INSTANCE.getScreenObject(screenObj);
+		Screen screen=screenSeatWrapper.getScreenObject();
 		screen.setId(screenId);
 		Long msId=((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).isMovieShowScheduledForScreen(screen.getId());
 		if(msId!=null)
@@ -511,7 +514,7 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public String addMovieShow(ArrayList<MovieShow> movieShowList)
+	public MovieShowResponseWrapper addMovieShow(ArrayList<MovieShow> movieShowList)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		
@@ -572,8 +575,6 @@ public class AdminAPI implements AdminAPIInterface{
 		}
 		
 		
-		
-		
 		return ((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).getMovieShowsByMovieShowIdList(msIds);
 		
 		
@@ -620,7 +621,7 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public String updateMovieShow(MovieShow movieShow)
+	public MovieShowResponseWrapper updateMovieShow(MovieShow movieShow)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		Long screenId=((MovieShowDAOMickeyImpl)ServiceInstance.getMovieShowService()).getScreenIdForMovieShowId(movieShow.getId());
@@ -711,7 +712,19 @@ public class AdminAPI implements AdminAPIInterface{
 	public void deleteSeat(long id) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-		ServiceInstance.getSeatService().deleteById(id);
+			
+			ArrayList<Seat> seat=new ArrayList<Seat>();
+			Seat seatObj=new Seat();
+			seatObj.setId(id);
+			seat.add(seatObj);
+			if(((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).isTicketBookedForAnySeat(seat))
+			{
+		     ServiceInstance.getSeatService().deleteById(id);
+			}
+			else
+			{
+				throw new ResponseFailureException("Cannot delete seat as ticket is booked");
+			}
 		}
 		catch(Exception e)
 		{
@@ -722,18 +735,30 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 
 	@Override
-	public ArrayList<Seat> getSeats() throws ResponseFailureException {
+	public ArrayList<Seat> getSeats(String fields) throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		return ServiceInstance.getSeatService().getRows(null);
+		return ServiceInstance.getSeatService().getRowsOnSelectionCols(null, fields);
+
 	}
 
 	@Override
 	public Seat updateSeat(Seat seat) throws ResponseFailureException {
 		// TODO Auto-generated method stub
 		try{
-		Seat seatUpdated= (Seat)((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).updateSeatById(seat);
-		return seatUpdated;
-		}
+		
+			ArrayList<Seat> seatList=new ArrayList<Seat>();
+			seatList.add(seat);
+			if(((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).isTicketBookedForAnySeat(seatList))
+			{
+				Seat seatUpdated= (Seat)((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).updateSeatById(seat);
+				return seatUpdated;
+	}
+			else
+			{
+				throw new ResponseFailureException("Cannot update seat as ticket is booked");
+			}
+		
+				}
 		catch(Exception e)
 		{
 			throw new ResponseFailureException(e.getMessage());
@@ -926,7 +951,7 @@ public class AdminAPI implements AdminAPIInterface{
 		
 		
 	}
-	
+
 	
 	@Override
 	public void deleteShowSeat(long id) throws ResponseFailureException {
@@ -950,10 +975,23 @@ public class AdminAPI implements AdminAPIInterface{
 	}
 	
 	@Override
-	public String getSeatsForScreen(Long screenId)
+	public SeatResponseWrapper getSeatByID(Long id) throws ResponseFailureException {
+		// TODO Auto-generated method stub
+			return ((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).getSeatById(id);
+		
+	}
+	
+	
+	@Override
+	public ShowSeat updateShowSeat(ShowSeat showSeat)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
-		return ((SeatDAOMickeyImpl)ServiceInstance.getSeatService()).getSeatsForScreen(screenId);
-		
+		try{
+		return ((ShowSeatDAOMickeyImpl)ServiceInstance.getShowSeatService()).updateShowSeatById(showSeat);
+		}
+		catch(DataAccessException e)
+		{
+			throw new ResponseFailureException(e.getMessage());
+		}
 	}
 }

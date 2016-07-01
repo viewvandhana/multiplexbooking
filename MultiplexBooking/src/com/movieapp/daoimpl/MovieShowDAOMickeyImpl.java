@@ -22,6 +22,7 @@ import com.movieapp.beans.MovieShow;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
 import com.movieapp.util.AppUtil;
+import com.movieapp.wrapperbeans.MovieShowResponseWrapper;
 
 public class MovieShowDAOMickeyImpl extends MickeyBaseDAO<MovieShow> {
 
@@ -129,7 +130,7 @@ public class MovieShowDAOMickeyImpl extends MickeyBaseDAO<MovieShow> {
 
 	}
 	
-	public String getMovieShowsByMovieShowIdList(ArrayList<Long> msIdList) throws ResponseFailureException {
+	public MovieShowResponseWrapper getMovieShowsByMovieShowIdList(ArrayList<Long> msIdList) throws ResponseFailureException {
 
 		SelectQuery moviesQuery = new SelectQueryImpl(
 				Table.getTable(MOVIESHOW.TABLE));
@@ -140,12 +141,12 @@ public class MovieShowDAOMickeyImpl extends MickeyBaseDAO<MovieShow> {
 
 	}
 
-	public String getMovieShowById(Long msId) throws ResponseFailureException {
+	public MovieShowResponseWrapper getMovieShowById(Long msId) throws ResponseFailureException {
 
 		return JoinDAO.getMovieShowsOnJoinCriteria(JoinDAO.constructMovieshowSelectQueryOnJoin(msId));
 
 	}
-	public String getMovieShowsByFilters(String dateInString, Long movieId,
+	public MovieShowResponseWrapper getMovieShowsByFilters(String dateInString, Long movieId,
 			Long screenId) throws ResponseFailureException {
 
 		SelectQuery moviesQuery = new SelectQueryImpl(

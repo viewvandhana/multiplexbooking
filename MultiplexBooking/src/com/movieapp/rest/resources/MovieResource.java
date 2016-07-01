@@ -1,4 +1,8 @@
+
 package com.movieapp.rest.resources;
+
+import java.util.ArrayList;
+import java.util.HashMap;
 
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
@@ -12,14 +16,13 @@ import javax.ws.rs.QueryParam;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
-import org.json.JSONObject;
-
 import Exception.ResponseFailureException;
 
 import com.movieapp.beans.Movie;
 import com.movieapp.bo.admin.AdminAPI;
 import com.movieapp.bo.admin.CommonAPI;
 import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.MovieWrapper;
 
 @Path("/movies")
 public class MovieResource {
@@ -27,26 +30,16 @@ public class MovieResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addMovie(String jObj) {
+	public Response addMovie(MovieWrapper movieWrapper) {
 
 		try {
-			JSONObject j = new JSONObject(jObj);
-			JSONObject movieObj = j.optJSONObject("movie");
-			Movie movie = ObjectMapperUtil.getMapper().readValue(
-				movieObj.toString(), Movie.class);
-			
-			String response= ObjectMapperUtil.getCustomMappedString("movie",
-					new AdminAPI().addMovie(movie));
-			return response;
+			HashMap<String, Movie> movieAdded=new HashMap<String, Movie>();
+			Movie movie =movieWrapper.getMovie();
+			movieAdded.put("movie",new AdminAPI().addMovie(movie));
+			return Response.ok(movieAdded).build();
 		} catch (ResponseFailureException e) {
-			
-			return e.getErrorJson();
-			//return Response.status(422).entity(error).build();
-		} catch (Exception e) {
-			
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-			//return Response.status(422).entity(error).build();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 
 	}
 	
@@ -74,12 +67,14 @@ public class MovieResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllMovies(@QueryParam("fields") String fields) {
+	public Response getAllMovies(@QueryParam("fields") String fields) {
 		try {
-			return ObjectMapperUtil.getCustomMappedString("movies",
-					new CommonAPI().getMovies(fields));
+			HashMap<String, ArrayList<Movie>> movieList=new HashMap<String, ArrayList<Movie>>();
+			movieList.put("movies",new CommonAPI().getMovies(fields));
+			return Response.ok(movieList).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
+			
 		}
 
 	}
@@ -87,13 +82,14 @@ public class MovieResource {
 	@GET
 	@Path("{movie_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getMovieById(@PathParam("movie_id") Long id,@QueryParam("fields") String fields) {
+	public Response getMovieById(@PathParam("movie_id") Long id,@QueryParam("fields") String fields) {
 		
 		try {
-			return ObjectMapperUtil.getCustomMappedString("movie",
-					new CommonAPI().getMovieById(id,fields));
-		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			HashMap<String, Movie> movie=new HashMap<String, Movie>();
+			movie.put("movie", new CommonAPI().getMovieById(id,fields));
+			return Response.ok(movie).build();
+			} catch (ResponseFailureException e) {
+			return Response.ok(e.getErrorJson()).build();
 		}
 	
 	}
@@ -102,21 +98,18 @@ public class MovieResource {
 	@Path("{movie_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateMovie(String jObj,@PathParam("movie_id") Long movieId) {
+	public Response updateMovie(MovieWrapper movieWrapper,@PathParam("movie_id") Long movieId) {
 
 		try {
-			JSONObject j = new JSONObject(jObj);
-			JSONObject movieObj = j.optJSONObject("movie");
-			Movie movie = ObjectMapperUtil.getMapper().readValue(
-					movieObj.toString(), Movie.class);
+			Movie movie = movieWrapper.getMovie();
 			movie.setId(movieId);
-			return ObjectMapperUtil.getCustomMappedString("movie",
-					new AdminAPI().updateMovie(movie));
+			HashMap<String, Movie> updatedMovie=new HashMap<String, Movie>();
+			updatedMovie.put("movie", new AdminAPI().updateMovie(movie));
+			return Response.ok(updatedMovie).build();
+	
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 	}
 
 }

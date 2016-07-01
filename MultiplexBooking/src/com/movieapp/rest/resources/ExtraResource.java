@@ -1,5 +1,8 @@
 package com.movieapp.rest.resources;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -20,26 +23,23 @@ import com.movieapp.beans.Extra;
 import com.movieapp.bo.admin.AdminAPI;
 import com.movieapp.bo.admin.CommonAPI;
 import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.ExtraWrapper;
 
 @Path("/extras")
 public class ExtraResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String addExtra(String extra) {
+	public Response addExtra(ExtraWrapper extraWrapper) {
 
 		try {
-			JSONObject j = new JSONObject(extra);
-			JSONObject extraJson = j.optJSONObject("extra");
-			Extra extraObj = ObjectMapperUtil.getMapper().readValue(
-					extraJson.toString(), Extra.class);
-			return ObjectMapperUtil.getCustomMappedString("extra",
-					new AdminAPI().addExtra(extraObj));
+			Extra extraObj = extraWrapper.getExtra();
+			HashMap<String, Extra> extraAdded=new HashMap<String, Extra>();
+			extraAdded.put("extra",new AdminAPI().addExtra(extraObj));
+			return Response.ok(extraAdded).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 
 	}
 
@@ -65,12 +65,14 @@ public class ExtraResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getAllExtras(@QueryParam("fields") String fields) {
+	public Response getAllExtras(@QueryParam("fields") String fields) {
 		try {
-			return ObjectMapperUtil.getCustomMappedString("extras",
-					new CommonAPI().getExtras(fields));
+			HashMap<String, ArrayList<Extra>> extraList=new HashMap<String, ArrayList<Extra>>();
+			extraList.put("extras",new CommonAPI().getExtras(fields));
+			return Response.ok(extraList).build();
+		
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 
 	}
@@ -79,38 +81,32 @@ public class ExtraResource {
 	@Path("{extra_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public Response updateExtra(String extra,@PathParam("extra_id") Long extraId) {
+	public Response updateExtra(ExtraWrapper extraWrapper,@PathParam("extra_id") Long extraId) {
 
 		try {
-			JSONObject j = new JSONObject(extra);
-			JSONObject extraJson = j.optJSONObject("extra");
-			Extra extraObj = ObjectMapperUtil.getMapper().readValue(
-					extraJson.toString(), Extra.class);
+			Extra extraObj = extraWrapper.getExtra();
 			extraObj.setId(extraId);
-			String resp= ObjectMapperUtil.getCustomMappedString("extra",
-					new AdminAPI().updateExtra(extraObj));
-			return Response.ok(resp).build();
+			HashMap<String, Extra> extraUpdated=new HashMap<String,Extra>();
+			extraUpdated.put("extra",new AdminAPI().updateExtra(extraObj));
+			return Response.ok(extraUpdated).build();
 			
 		} catch (ResponseFailureException e) {
-			String error= e.getErrorJson();
-			return Response.status(422).entity(error).build();
-		} catch (Exception e) {
-			String error=new ResponseFailureException(e.getMessage()).getErrorJson();
-			return Response.status(422).entity(error).build();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 
 	}
 
 	@GET
 	@Path("{extra_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getExtraById(@PathParam("extra_id") Long id,@QueryParam("fields") String fields) {
+	public Response getExtraById(@PathParam("extra_id") Long id,@QueryParam("fields") String fields) {
 		
 		try {
-			return ObjectMapperUtil.getCustomMappedString("extra",
-					new CommonAPI().getExtraById(id, fields));
+			HashMap<String, Extra> extra=new HashMap<String,Extra>();
+			extra.put("extra",new CommonAPI().getExtraById(id, fields));
+			return Response.ok(extra).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 		}
 	
 	}

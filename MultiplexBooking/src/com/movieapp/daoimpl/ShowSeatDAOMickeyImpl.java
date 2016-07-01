@@ -10,8 +10,9 @@ import com.adventnet.ds.query.QueryConstants;
 import com.adventnet.ds.query.SelectQuery;
 import com.adventnet.ds.query.SelectQueryImpl;
 import com.adventnet.ds.query.Table;
+import com.adventnet.ds.query.UpdateQuery;
+import com.adventnet.ds.query.UpdateQueryImpl;
 import com.adventnet.moviebooking.SHOWSEAT;
-import com.adventnet.persistence.DataAccess;
 import com.adventnet.persistence.DataAccessException;
 import com.adventnet.persistence.DataObject;
 import com.adventnet.persistence.Row;
@@ -19,6 +20,7 @@ import com.movieapp.beans.Seat;
 import com.movieapp.beans.ShowSeat;
 import com.movieapp.interfaces.MickeyBaseDAO;
 import com.movieapp.interfaces.RowAdapter;
+import com.movieapp.wrapperbeans.MovieShowSeatResponseWrapper;
 
 public class ShowSeatDAOMickeyImpl  extends MickeyBaseDAO<ShowSeat>{
 	RowAdapter<ShowSeat> rowAdapter=new RowAdapter<ShowSeat>() {
@@ -99,6 +101,21 @@ public class ShowSeatDAOMickeyImpl  extends MickeyBaseDAO<ShowSeat>{
 	
 	}
 	
+	public ShowSeat updateShowSeatById(ShowSeat showseat) throws DataAccessException,ResponseFailureException
+	{
+		
+		UpdateQuery updateQuery = new UpdateQueryImpl(getTableName());
+		Criteria criteria=new Criteria(Column.getColumn(getTableName(),getPrimaryKeyColumnName()), showseat.getId() ,QueryConstants.EQUAL);  	
+		updateQuery.setCriteria(criteria);
+		updateQuery.setUpdateColumn(SHOWSEAT.TICKET_ID,showseat.getTicketID());
+		updateQuery.setUpdateColumn(SHOWSEAT.MOVIE_SHOW_ID,showseat.getMovieShowID());
+		
+		return update(updateQuery,criteria);
+		
+		
+	
+	}
+	
 	public void deleteShowSeatBySeatId(Long seatId) throws DataAccessException,ResponseFailureException
 	{
 		Criteria criteria=new Criteria(new Column(getTableName(),SHOWSEAT.SEAT_ID),seatId,QueryConstants.EQUAL);
@@ -157,14 +174,19 @@ public class ShowSeatDAOMickeyImpl  extends MickeyBaseDAO<ShowSeat>{
 		
 	}
 	
-	public String getShowSeatsByTicketId(Long ticketId) throws ResponseFailureException
+	public MovieShowSeatResponseWrapper getShowSeatsByTicketId(Long ticketId) throws ResponseFailureException
 	{
 		Criteria criteria=new Criteria(new Column(SHOWSEAT.TABLE,SHOWSEAT.TICKET_ID),ticketId,QueryConstants.EQUAL);
 		return JoinDAO.getShowSeatsOnJoinCriteria(criteria);
 	}
-	public String getCompleteShowSeatsByMovieShowId(Long msId) throws ResponseFailureException
+	public MovieShowSeatResponseWrapper getCompleteShowSeatsByMovieShowId(Long msId) throws ResponseFailureException
 	{
 		Criteria criteria=new Criteria(new Column(SHOWSEAT.TABLE,SHOWSEAT.MOVIE_SHOW_ID),msId,QueryConstants.EQUAL);
+	    return JoinDAO.getShowSeatsOnJoinCriteria(criteria);
+	}
+	public MovieShowSeatResponseWrapper getCompleteShowSeatsByShowSeatId(ArrayList<Long> showSeatIds) throws ResponseFailureException
+	{
+		Criteria criteria=new Criteria(new Column(SHOWSEAT.TABLE,SHOWSEAT.SHOW_SEAT_ID),showSeatIds.toArray(),QueryConstants.IN);
 	    return JoinDAO.getShowSeatsOnJoinCriteria(criteria);
 	}
 }

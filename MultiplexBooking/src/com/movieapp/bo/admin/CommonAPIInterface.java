@@ -10,6 +10,11 @@ import com.movieapp.beans.Extra;
 import com.movieapp.beans.Movie;
 import com.movieapp.beans.MovieShow;
 import com.movieapp.beans.Show;
+import com.movieapp.beans.ShowSeat;
+import com.movieapp.wrapperbeans.MovieShowResponseWrapper;
+import com.movieapp.wrapperbeans.MovieShowSeatResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatResponseWrapper;
+import com.movieapp.wrapperbeans.TicketResponseWrapper;
 
 public interface CommonAPIInterface {
 
@@ -18,8 +23,8 @@ public interface CommonAPIInterface {
 	public Show getShowsById(Long id,String fields) throws ResponseFailureException;
 	
 	//screen
-	public String getScreens() throws ResponseFailureException;
-	public String getScreenForId(Long screenId) throws ResponseFailureException;
+	public ScreenSeatResponseWrapper getScreens() throws ResponseFailureException;
+	public ScreenSeatResponseWrapper getScreenForId(Long screenId) throws ResponseFailureException;
 	
 	//movie
 	public ArrayList<Movie> getMovies(String fields) throws ResponseFailureException;
@@ -27,8 +32,8 @@ public interface CommonAPIInterface {
 	
 	//movieshows
 	public ArrayList<MovieShow> getMovieShows() throws ResponseFailureException;
-	public String getMovieShowsByMovieShowId(Long msId) throws ResponseFailureException;
-	public String getMovieShowsByFilters(String date,Long movieId,Long screenId) throws ResponseFailureException;
+	public MovieShowResponseWrapper getMovieShowsByMovieShowId(Long msId) throws ResponseFailureException;
+	public MovieShowResponseWrapper getMovieShowsByFilters(String date,Long movieId,Long screenId) throws ResponseFailureException;
 	
 	//customer
 	public Customer getCustomerById(Long id,String fields) throws ResponseFailureException;
@@ -42,8 +47,11 @@ public interface CommonAPIInterface {
 	public Extra getExtraById(Long id,String fields) throws ResponseFailureException;
 	
 	//showseat
-	public String getShowSeats(Long msId) throws ResponseFailureException;
+	public MovieShowSeatResponseWrapper getShowSeats(Long msId) throws ResponseFailureException;
+	public MovieShowSeatResponseWrapper getShowSeatByID(ArrayList<Long> showSeatList) throws ResponseFailureException;
+		
 	
 	//ticket
-	public String getTicketDetail(Long ticketId) throws ResponseFailureException;
+	public TicketResponseWrapper getTicketDetail(Long ticketId) throws ResponseFailureException;
+	public void deleteTicket(Long ticketId) throws ResponseFailureException;
 }

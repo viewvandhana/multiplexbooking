@@ -1,5 +1,8 @@
 package com.movieapp.rest.resources;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+
 import javax.ws.rs.Consumes;
 import javax.ws.rs.DELETE;
 import javax.ws.rs.GET;
@@ -16,31 +19,30 @@ import org.json.JSONObject;
 
 import Exception.ResponseFailureException;
 
+import com.movieapp.beans.Category;
 import com.movieapp.beans.Customer;
 import com.movieapp.bo.admin.AdminAPI;
 import com.movieapp.bo.admin.CommonAPI;
 import com.movieapp.bo.admin.UserAPI;
 import com.movieapp.util.ObjectMapperUtil;
+import com.movieapp.wrapperbeans.CustomerWrapper;
 
 @Path("/customers")
 public class CustomerResource {
 	@POST
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-		public String addCustomer(String customer) {
+		public Response addCustomer(CustomerWrapper customerWrapper) {
 
 		try {
-			JSONObject j = new JSONObject(customer);
-			JSONObject customerJson = j.optJSONObject("customer");
-			Customer customerObj = ObjectMapperUtil.getMapper().readValue(
-					customerJson.toString(), Customer.class);
-			return ObjectMapperUtil.getCustomMappedString("customer",
-					new UserAPI().addCustomer(customerObj));
+			
+			Customer customerObj = customerWrapper.getCustomer();
+			HashMap<String,Customer> addedCustomer=new HashMap<String, Customer>();
+			addedCustomer.put("customer", new UserAPI().addCustomer(customerObj));
+			return Response.ok(addedCustomer).build();
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+			return Response.ok(e.getErrorJson()).build();
+		} 
 
 	}
 
@@ -65,25 +67,26 @@ public class CustomerResource {
 
 	@GET
 	@Produces(MediaType.APPLICATION_JSON)
-	public String validateCustomer(@QueryParam("action") String action,
+	public Response validateCustomer(@QueryParam("action") String action,
 			@QueryParam("email") String emailId) {
 
+		
 		try {
 			if (action == null) {
-				String resp= ObjectMapperUtil.getCustomMappedString("customers",
-						new AdminAPI().getCustomers());
-				//return Response.ok(resp).build();
-				return resp;
+				HashMap<String,ArrayList<Customer>> customerList=new HashMap<String,ArrayList<Customer>>();
+				customerList.put("customers", new AdminAPI().getCustomers());
+				return Response.ok(customerList).build();
+				
 			}
 			if (action.equals("checkCustomer")) {
-				return new UserAPI().checkCustomer(emailId);
-				//return Response.ok(resp).build();
+				HashMap<String,Customer> validatedCustomer=new HashMap<String,Customer>();
+				validatedCustomer.put("customer", new UserAPI().checkCustomer(emailId));
+				return Response.ok(validatedCustomer).build();
 			} else {
-				 return new ResponseFailureException("No such operation").getErrorJson();
-				//return Response.status(422).entity(error).build();
+				return Response.ok(new ResponseFailureException("No such operation").getErrorJson()).build();
 			}
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
 			//return Response.status(422).entity(error).build();
 		}
 
@@ -93,34 +96,37 @@ public class CustomerResource {
 	@Path("{customer_id}")
 	@Consumes(MediaType.APPLICATION_JSON)
 	@Produces(MediaType.APPLICATION_JSON)
-	public String updateCustomer(String customer,@PathParam("customer_id") Long customerId) {
+	public Response updateCustomer(CustomerWrapper customerWrapper,@PathParam("customer_id") Long customerId) {
 
 		try {
-			JSONObject j = new JSONObject(customer);
-			JSONObject customerJson = j.optJSONObject("customer");
-			Customer customerObj = ObjectMapperUtil.getMapper().readValue(
-					customerJson.toString(), Customer.class);
+			Customer customerObj = customerWrapper.getCustomer();
 			customerObj.setId(customerId);
-			return ObjectMapperUtil.getCustomMappedString("customer",
-					new UserAPI().updateCustomer(customerObj));
+			HashMap<String,Customer> updatedCustomer=new HashMap<String,Customer>();
+			updatedCustomer.put("customer", new UserAPI().updateCustomer(customerObj));
+		    return Response.ok(updatedCustomer).build();
+			
+					
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
-		} catch (Exception e) {
-			return new ResponseFailureException(e.getMessage()).getErrorJson();
-		}
+			return Response.ok(e.getErrorJson()).build();
+			
+		} 
 
 	}
 	
 	@GET
 	@Path("{customer_id}")
 	@Produces(MediaType.APPLICATION_JSON)
-	public String getCustomerById(@PathParam("customer_id") Long id,@QueryParam("fields") String fields) {
+	public Response getCustomerById(@PathParam("customer_id") Long id,@QueryParam("fields") String fields) {
 		
 		try {
-			return ObjectMapperUtil.getCustomMappedString("customer",
-					new CommonAPI().getCustomerById(id, fields));
+			HashMap<String,Customer> customer=new HashMap<String,Customer>();
+			customer.put("customer", new CommonAPI().getCustomerById(id, fields));
+			return Response.ok(customer).build();
+				
+		
 		} catch (ResponseFailureException e) {
-			return e.getErrorJson();
+			return Response.ok(e.getErrorJson()).build();
+			
 		}
 	
 	}

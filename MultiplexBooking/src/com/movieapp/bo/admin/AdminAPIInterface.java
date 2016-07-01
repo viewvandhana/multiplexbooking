@@ -14,6 +14,10 @@ import com.movieapp.beans.Seat;
 import com.movieapp.beans.Show;
 import com.movieapp.beans.ShowSeat;
 import com.movieapp.beans.Ticket;
+import com.movieapp.wrapperbeans.MovieShowResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatResponseWrapper;
+import com.movieapp.wrapperbeans.ScreenSeatWrapper;
+import com.movieapp.wrapperbeans.SeatResponseWrapper;
 
 public interface AdminAPIInterface {
 
@@ -23,10 +27,10 @@ public interface AdminAPIInterface {
 	public Show updateShow(Show show) throws ResponseFailureException;
 	
 	//screen
-	public String addScreen(String screenObj) throws ResponseFailureException;
+	public ScreenSeatResponseWrapper addScreen(ScreenSeatWrapper screenSeatWrapper) throws ResponseFailureException;
 	public void deleteScreen(long id) throws ResponseFailureException;
-	public String updateScreen(String screenObj,Long screenId) throws ResponseFailureException;
-	public String updateScreenSeats(String screenObj,Long screenId) throws ResponseFailureException;
+	public ScreenSeatResponseWrapper updateScreen(ScreenSeatWrapper screenSeatWrapper,Long screenId) throws ResponseFailureException;
+	public ScreenSeatResponseWrapper updateScreenSeats(ScreenSeatWrapper screenSeatWrapper,Long screenId) throws ResponseFailureException;
 	
 	//movie
 	public  Movie addMovie(Movie movie) throws ResponseFailureException;
@@ -34,21 +38,22 @@ public interface AdminAPIInterface {
 	public Movie updateMovie(Movie movie) throws ResponseFailureException;
 	
 	//movieShow
-	public String addMovieShow(ArrayList<MovieShow> movieShowList) throws ResponseFailureException;
+	public MovieShowResponseWrapper addMovieShow(ArrayList<MovieShow> movieShowList) throws ResponseFailureException;
 	public void deleteMovieShow(long id) throws ResponseFailureException;
-	public String updateMovieShow(MovieShow movieShow) throws ResponseFailureException;
+	public MovieShowResponseWrapper updateMovieShow(MovieShow movieShow) throws ResponseFailureException;
 	
 	//showSeat
 	public ArrayList<ShowSeat> addShowSeat(ArrayList<ShowSeat> showSeats) throws DataAccessException,ResponseFailureException;
 	public void deleteShowSeat(long id) throws ResponseFailureException;
-	//if reqd public ShowSeat updateShowSeat(ShowSeat showSeat) throws ResponseFailureException;
+	public ShowSeat updateShowSeat(ShowSeat showSeat) throws ResponseFailureException;
+	
 	
 	//seat
 	public Seat addSeat(Seat seat) throws ResponseFailureException;
 	public void deleteSeat(long id) throws ResponseFailureException;
-	public ArrayList<Seat> getSeats() throws ResponseFailureException;
+	public ArrayList<Seat> getSeats(String fields) throws ResponseFailureException;
 	public Seat updateSeat(Seat seat) throws ResponseFailureException;
-	public String getSeatsForScreen(Long screenId) throws ResponseFailureException;
+	public SeatResponseWrapper getSeatByID(Long id) throws ResponseFailureException;
 	
 	//customer
 	public ArrayList<Customer> getCustomers() throws ResponseFailureException;
