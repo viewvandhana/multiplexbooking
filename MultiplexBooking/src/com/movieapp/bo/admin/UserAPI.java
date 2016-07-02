@@ -83,6 +83,7 @@ public class UserAPI implements UserAPIInterface{
 	public TicketResponseWrapper bookTicket(TicketWrapper ticketWrapper)
 			throws ResponseFailureException {
 		// TODO Auto-generated method stub
+		
 		try{
 			DataAccess.getTransactionManager().begin();
 			Ticket ticket =ticketWrapper.constructTicket();
