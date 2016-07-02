@@ -101,7 +101,7 @@ public class UserAPI implements UserAPIInterface{
 			ServiceInstance.getTicketChargeService().insertMultipleRows(ticketChargesList);
 			TicketResponseWrapper ticketResponseWrapper=JoinDAO.getTicketDetail(ticketInserted.getId());
 			DataAccess.getTransactionManager().commit();
-		//	sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketResponseWrapper.obtainSeatNameSring());
+			sendSms(ticketInserted.getId(),ticketInserted.getCustomerID(),ticket.getTotalCost(),JoinDAO.getBookTicketMessage(ticketInserted.getMovieShowID()),ticketResponseWrapper.obtainSeatNameSring());
 			return ticketResponseWrapper;
 		}
 		catch(DataAccessException e)
