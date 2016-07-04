@@ -19,7 +19,7 @@ public class TicketResponseWrapper {
 
 	private TicketResponseJSONWrapper ticket;
 	private ArrayList<TicketCharge> ticketcharges;
-	private ArrayList<MovieShow> movieShows;
+	private ArrayList<MovieShow> movieshows;
 	private ArrayList<Screen> screens;
 	private ArrayList<Show> shows;
 	private ArrayList<Movie> movies;
@@ -52,11 +52,11 @@ public class TicketResponseWrapper {
 	public void setTicketcharges(ArrayList<TicketCharge> ticketcharges) {
 		this.ticketcharges = ticketcharges;
 	}
-	public ArrayList<MovieShow> getMovieShows() {
-		return movieShows;
+	public ArrayList<MovieShow> getMovieshows() {
+		return movieshows;
 	}
-	public void setMovieShows(ArrayList<MovieShow> movieShows) {
-		this.movieShows = movieShows;
+	public void setMovieshows(ArrayList<MovieShow> movieShows) {
+		this.movieshows = movieShows;
 	}
 	public ArrayList<Screen> getScreens() {
 		return screens;

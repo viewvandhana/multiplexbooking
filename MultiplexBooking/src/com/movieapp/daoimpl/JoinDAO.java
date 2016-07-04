@@ -421,10 +421,10 @@ public class JoinDAO {
 			ticketResponseWrapper.setCategories(CategoryDAOFactory
 					.getCategoryDAOInstance("mickey").getBeans(
 							dataObject.getRows(CATEGORY.TABLE)));
-			ticketResponseWrapper.setMovieShows(MovieShowDAOFactory
+			ticketResponseWrapper.setMovieshows(MovieShowDAOFactory
 					.getMovieShowDAOInstance("mickey").getBeans(
 							dataObject.getRows(MOVIESHOW.TABLE)));
-			ticketResponseWrapper.setMovieShows(MovieShowDAOFactory
+			ticketResponseWrapper.setMovieshows(MovieShowDAOFactory
 					.getMovieShowDAOInstance("mickey").getBeans(
 							dataObject.getRows(MOVIESHOW.TABLE)));
 			ticketResponseWrapper.setScreens(ScreenDAOFactory
